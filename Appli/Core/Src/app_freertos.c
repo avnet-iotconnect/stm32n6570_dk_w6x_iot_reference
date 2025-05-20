@@ -173,6 +173,10 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN defaultTask */
   BaseType_t xResult;
+
+  char * pucMqttEndpoint;
+  size_t uxMqttEndpointLen = -1;
+
 #if defined(LFS_CONFIG)
   int xMountStatus;
 #endif
@@ -192,11 +196,20 @@ void StartDefaultTask(void *argument)
     LogInfo("File System mounted.");
     (void) xEventGroupSetBits(xSystemEvents, EVT_MASK_FS_READY);
 
-#if DEMO_OTA
-    otaPal_EarlyInit();
-#endif
-
     KVStore_init();
+
+    pucMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT, &uxMqttEndpointLen );
+
+#if DEMO_OTA
+    if ((uxMqttEndpointLen>0) && (uxMqttEndpointLen < 0xffffffff))
+    {
+      /* If we are connecting to AWS */
+      if (strstr(pucMqttEndpoint, "amazonaws") != NULL)
+      {
+        otaPal_EarlyInit();
+      }
+    }
+#endif
   }
   else
   {
@@ -204,6 +217,27 @@ void StartDefaultTask(void *argument)
   }
 #endif
   (void) xEventGroupClearBits( xSystemEvents, EVT_MASK_NET_CONNECTED );
+
+  size_t xLength;
+
+  KVStore_getStringHeap(CS_CORE_THING_NAME, &xLength);
+
+  if (xLength <= 0)
+  {
+    char *democonfigFP_DEMO_ID = pvPortMalloc(democonfigMAX_THING_NAME_LENGTH);
+
+    uint32_t uid0 = HAL_GetUIDw0();
+    uint32_t uid1 = HAL_GetUIDw1();
+    uint32_t uid2 = HAL_GetUIDw2();
+
+    snprintf(democonfigFP_DEMO_ID, democonfigMAX_THING_NAME_LENGTH, democonfigDEVICE_PREFIX"-%08X%08X%08X", (int)uid0, (int)uid1, (int)uid2);
+
+    /* Update the KV Store */
+    KVStore_setString(CS_CORE_THING_NAME, democonfigFP_DEMO_ID);
+    KVStore_xCommitChanges();
+
+    vPortFree(democonfigFP_DEMO_ID);
+  }
 
 #if defined(ST67W6X)
   xResult = xTaskCreate(W6X_WiFi_Task, "w6x_wifi", TASK_STACK_SIZE_W6X, NULL, TASK_PRIO_W6X, NULL);
@@ -226,11 +260,6 @@ void StartDefaultTask(void *argument)
 #endif
 
 #if (DEMO_OTA || DEMO_SHADOW)
-  char * pucMqttEndpoint;
-  size_t uxMqttEndpointLen;
-
-  pucMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT, &uxMqttEndpointLen );
-
   if ((uxMqttEndpointLen>0) && (uxMqttEndpointLen < 0xffffffff))
   {
     /* If we are connecting to AWS */
@@ -244,9 +273,9 @@ void StartDefaultTask(void *argument)
       xResult = xTaskCreate(vShadowDeviceTask, "ShadowDevice", TASK_STACK_SIZE_SHADOW, NULL, TASK_PRIO_SHADOW, NULL);
 #endif
     }
-
-    vPortFree(pucMqttEndpoint);
   }
+
+  vPortFree(pucMqttEndpoint);
 #endif /* (DEMO_OTA || DEMO_SHADOW) */
 
 #if DEMO_SNTP

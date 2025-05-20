@@ -147,6 +147,8 @@
  */
 #define shadowexampleINVALID_POWERON_STATE             ( 2 )
 
+#define NOTIFY_INDEX 0
+
 /**
  * @brief Defines structure passed to callbacks and local functions.
  */
@@ -496,12 +498,15 @@ static void prvIncomingPublishUpdateDeltaCallback( void * pvCtx,
 
                     if( ulNewState == 1 )
                     {
-                        HAL_GPIO_WritePin( LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET ); /* Turn the LED ON */
+                        HAL_GPIO_WritePin( LED_RED_GPIO_Port, LED_RED_Pin, LED_RED_ON ); /* Turn the LED ON */
                     }
                     else
                     {
-                        HAL_GPIO_WritePin( LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET ); /* Turn the LED off */
+                        HAL_GPIO_WritePin( LED_RED_GPIO_Port, LED_RED_Pin, LED_RED_OFF ); /* Turn the LED off */
                     }
+
+                    TaskHandle_t taskHandle = xTaskGetHandle("ShadowDevice");
+                    xTaskNotifyIndexed(taskHandle, NOTIFY_INDEX, 1, eSetValueWithOverwrite);
                 }
             }
         }
@@ -716,12 +721,23 @@ static uint32_t getPowerOnState(void)
 {
   uint32_t ulNewState = 0;
 
-  if (HAL_GPIO_ReadPin( LED_RED_GPIO_Port, LED_RED_Pin) == GPIO_PIN_RESET)
+  if (HAL_GPIO_ReadPin( LED_RED_GPIO_Port, LED_RED_Pin) == LED_RED_ON)
   {
     ulNewState = 1;
   }
 
   return ulNewState;
+}
+
+static BaseType_t xIsMqttConnected(void)
+{
+  /* Wait for MQTT to be connected */
+  EventBits_t uxEvents = xEventGroupWaitBits(xSystemEvents,
+  EVT_MASK_MQTT_CONNECTED,
+  pdFALSE,
+  pdTRUE, 0);
+
+  return ((uxEvents & EVT_MASK_MQTT_CONNECTED) == EVT_MASK_MQTT_CONNECTED);
 }
 
 void vShadowDeviceTask( void * pvParameters )
@@ -742,6 +758,8 @@ void vShadowDeviceTask( void * pvParameters )
 
     /* Record the handle of this task so that the callbacks can send a notification to this task. */
     xShadowCtx.xShadowDeviceTaskHandle = xTaskGetCurrentTaskHandle();
+
+    HAL_GPIO_WritePin( LED_RED_GPIO_Port, LED_RED_Pin, LED_RED_OFF ); /* Turn the LED off */
 
     /* Wait for MqttAgent to be ready. */
     vSleepUntilMQTTAgentReady();
@@ -780,17 +798,20 @@ void vShadowDeviceTask( void * pvParameters )
     xShadowCtx.ulCurrentPowerOnState = getPowerOnState();
 
     /* Just to send a shadow message the first time we connect */
-    xShadowCtx.ulReportedPowerOnState = !xShadowCtx.ulCurrentPowerOnState;
+    xShadowCtx.ulReportedPowerOnState = xShadowCtx.ulCurrentPowerOnState;
 
     if( xStatus == true )
     {
         for( ; ; )
         {
+#if 0
             if( xShadowCtx.ulCurrentPowerOnState == xShadowCtx.ulReportedPowerOnState )
             {
                 LogDebug( "No change in powerOn state since last report. Current state is %u.", xShadowCtx.ulCurrentPowerOnState );
             }
             else
+#endif
+            	if (xIsMqttConnected() == pdTRUE)
             {
                 LogInfo( "PowerOn state is now %u. Sending new report.", ( unsigned int ) xShadowCtx.ulCurrentPowerOnState );
 
@@ -844,7 +865,13 @@ void vShadowDeviceTask( void * pvParameters )
             }
 
             LogDebug( "Sleeping until next update check." );
-            vTaskDelay( pdMS_TO_TICKS( shadowMS_BETWEEN_REPORTS ) );
+            uint32_t ulNotificationValue;
+            xTaskNotifyWaitIndexed(NOTIFY_INDEX,
+            		               0,
+                                   0xFFFFFFFF,
+								   &ulNotificationValue,
+								   pdMS_TO_TICKS( portMAX_DELAY ));
+//            vTaskDelay( pdMS_TO_TICKS( shadowMS_BETWEEN_REPORTS ) );
         }
     }
     else

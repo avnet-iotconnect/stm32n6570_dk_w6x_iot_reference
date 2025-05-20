@@ -37,6 +37,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32N6xx_HAL_Driver/stm32n6xx_hal_bsec.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_bsec.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32N6xx_HAL_Driver/stm32n6xx_hal_cortex.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_cortex.c</locationURI>
@@ -140,11 +145,6 @@
 			<name>Middlewares/ST/STM32_ExtMem_Manager/stm32_user_driver.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/STM32_ExtMem_Manager/user/stm32_user_driver.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/STDIO/Compiler/I O/STDOUT/USART/stdout_usart.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/STDIO/stdout_usart.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

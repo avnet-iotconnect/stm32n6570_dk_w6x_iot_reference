@@ -112,9 +112,6 @@ EXTMEM_DefinitionTypeDef extmem_list_config[1];
  * -- Insert functions declaration here --
  */
 /* USER CODE BEGIN FD */
-#include <stdio.h>
-#define EXTMEM_DEBUG_LEVEL 0
-#define EXTMEM_MACRO_DEBUG printf
 /* USER CODE END FD */
 
 #ifdef __cplusplus

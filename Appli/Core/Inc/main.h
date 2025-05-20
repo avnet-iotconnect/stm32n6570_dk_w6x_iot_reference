@@ -120,6 +120,8 @@ void Error_Handler(void);
 #define SPI_SLAVE_DATA_RDY_GPIO_Port            ARD_D03_GPIO_Port
 #define SPI_SLAVE_DATA_RDY_EXTI_IRQn            ARD_D03_EXTI_IRQn
 
+#define LED_RED_ON                              GPIO_PIN_RESET
+#define LED_RED_OFF                             GPIO_PIN_SET
 /**************** MbedTLS debug config ****************/
 #define MBEDTLS_DEBUG_NO_DEBUG                  0 /* No debug messages are displayed                                        */
 #define MBEDTLS_DEBUG_ERROR                     1 /* Only error messages are shown                                          */
@@ -131,7 +133,7 @@ void Error_Handler(void);
 
 /******************** Tasks config ********************/
 #define DEMO_PUB_SUB                            1
-#define DEMO_OTA                                0
+#define DEMO_OTA                                1
 #define DEMO_ENV_SENSOR                         1
 #define DEMO_MOTION_SENSOR                      1
 #define DEMO_SHADOW                             1
@@ -177,13 +179,9 @@ void Error_Handler(void);
 #define W61_ATD_RX_TASK_PRIO                    20         /* w61_at_rx_parser.h, W61 AT Rx parser task priority, recommended to be higher than application tasks */
 #define SPI_THREAD_PRIO                         17         /* spi_iface.c        */
 
-#if 0
-#define DEFAULT_SSID                            "STTestN750"
-#define DEFAULT_PSWD                            "9a1v2r73027"
-#else
-#define DEFAULT_SSID                            "st_iot_demo"
-#define DEFAULT_PSWD                            "stm32u585"
-#endif
+#define democonfigMAX_THING_NAME_LENGTH         128
+#define democonfigDEVICE_PREFIX                 "stm32n6"
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

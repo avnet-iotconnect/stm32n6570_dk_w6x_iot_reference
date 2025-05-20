@@ -65,6 +65,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_gpio.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32N6xx_HAL_Driver/stm32n6xx_hal_iwdg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_iwdg.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32N6xx_HAL_Driver/stm32n6xx_hal_pwr.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_pwr.c</locationURI>
@@ -685,6 +690,21 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/ARM_Security/library/x509write_csr.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/Core Library/ota.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/ota.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/Core Library/ota_base64.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/ota_base64.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/Core Library/ota_interface.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/ota_interface.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/FreeRTOS/RTOS/Core/Cortex-M/freertos_evr.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/ARM_RTOS_FreeRTOS/CMSIS/RTOS2/FreeRTOS/Source/freertos_evr.c</locationURI>
@@ -720,9 +740,19 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/ARM_RTOS_FreeRTOS/Source/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/STDIO/Compiler/I O/STDOUT/SWD/stdout_swd.c</name>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/Data Protocol/MQTT/ota_cbor.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/STDIO/stdout_swd.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/Data Protocol/MQTT/ota_mqtt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/ota_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/AWS_IoT_Over-the-air_Update/AWS IoT/AWS IoT Over-the-air Update/OS Functional Abstraction Layer/FreeRTOS/ota_os_freertos.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/AWS_AWS%20IoT/ota-for-aws-iot-embedded-sdk/source/portable/os/ota_os_freertos.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

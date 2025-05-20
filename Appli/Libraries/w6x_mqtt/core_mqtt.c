@@ -36,10 +36,6 @@
 #include <string.h>
 
 /* Private Macro -------------------------------------------------------------*/
-//#define MQTT_PRE_SEND_HOOK( pContext )  xSemaphoreTake(xW6XMutex, portMAX_DELAY)
-//#define MQTT_POST_SEND_HOOK( pContext ) xSemaphoreGive(xW6XMutex)
-//#define MQTT_POST_SEND_HOOK( pContext ) vTaskDelay(1000)
-
 #ifndef MQTT_PRE_SEND_HOOK
 
 /**

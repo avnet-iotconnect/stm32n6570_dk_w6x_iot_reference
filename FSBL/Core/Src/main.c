@@ -57,8 +57,9 @@ static void MX_GPIO_Init(void);
 static void MX_GPDMA1_Init(void);
 static void MX_XSPI2_Init(void);
 static void MX_LPUART1_UART_Init(void);
+static void MX_BSEC_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void OpenDebug(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -74,7 +75,10 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	  // Open for debugging, authenticate debugging of secure code.
+	  // This enables debugging without going through developer mode.
+	  // REMOVE FOR PRODUCTION CODE!
+	  OpenDebug();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,11 +103,9 @@ int main(void)
   MX_GPDMA1_Init();
   MX_XSPI2_Init();
   MX_LPUART1_UART_Init();
+  MX_BSEC_Init();
   MX_EXTMEM_MANAGER_Init();
   /* USER CODE BEGIN 2 */
-
-//  printf("Build Date: %s\n", __DATE__);
-//  printf("Build Time: %s\n", __TIME__);
 
   /* USER CODE END 2 */
 
@@ -175,7 +177,8 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_NONE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL1.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL1.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL1.PLLM = 1;
@@ -242,6 +245,44 @@ void PeriphCommonClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief BSEC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_BSEC_Init(void)
+{
+
+  /* USER CODE BEGIN BSEC_Init 0 */
+  BSEC_HandleTypeDef hbsec;
+  BSEC_DebugCfgTypeDef config_debug;
+
+  hbsec.Instance = BSEC;
+
+  config_debug.HDPL_Open_Dbg   = HAL_BSEC_OPEN_DBG_LEVEL_0;
+  config_debug.NonSec_Dbg_Auth = HAL_BSEC_NONSEC_DBG_AUTH;
+  config_debug.Sec_Dbg_Auth    = HAL_BSEC_SEC_DBG_AUTH;
+
+  if(HAL_BSEC_ConfigDebug(&hbsec, &config_debug) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if(HAL_BSEC_UnlockDebug(&hbsec) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE END BSEC_Init 0 */
+
+  /* USER CODE BEGIN BSEC_Init 1 */
+
+  /* USER CODE END BSEC_Init 1 */
+  /* USER CODE BEGIN BSEC_Init 2 */
+
+  /* USER CODE END BSEC_Init 2 */
+
 }
 
 /**
@@ -389,7 +430,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+static void OpenDebug(void)
+{
+  BSEC_HandleTypeDef hbsec;
+  hbsec.Instance = BSEC;
+  BSEC_DebugCfgTypeDef config_debug;
+  config_debug.HDPL_Open_Dbg = HAL_BSEC_OPEN_DBG_LEVEL_0;
+  config_debug.NonSec_Dbg_Auth = HAL_BSEC_NONSEC_DBG_AUTH;
+  config_debug.Sec_Dbg_Auth = HAL_BSEC_SEC_DBG_AUTH;
+  if(HAL_BSEC_ConfigDebug(&hbsec, &config_debug) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if(HAL_BSEC_UnlockDebug(&hbsec) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
 /* USER CODE END 4 */
 
 /**
