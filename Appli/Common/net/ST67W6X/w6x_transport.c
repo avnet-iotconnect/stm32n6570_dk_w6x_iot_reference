@@ -214,9 +214,17 @@ static bool prvConfigMQTTEndpoint(W6X_MQTT_Connect_t *pxCtx, const char *pcHostN
 
 static bool prvConfigMQTTClientId(W6X_MQTT_Connect_t *pxCtx)
 {
+#if defined(HAL_ICACHE_MODULE_ENABLED)
+  HAL_ICACHE_Disable();
+#endif
+
   uint32_t uid0 = HAL_GetUIDw0();
   uint32_t uid1 = HAL_GetUIDw1();
   uint32_t uid2 = HAL_GetUIDw2();
+
+#if defined(HAL_ICACHE_MODULE_ENABLED)
+  HAL_ICACHE_Enable();
+#endif
 
   memset(pxCtx->MQClientId,0, 32);
 

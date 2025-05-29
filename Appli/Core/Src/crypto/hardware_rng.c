@@ -24,6 +24,7 @@
 /* USER CODE END Header */
 #include MBEDTLS_CONFIG_FILE
 
+#include "main.h"
 #include "string.h"
 
 #if defined(__USE_STSAFE__)

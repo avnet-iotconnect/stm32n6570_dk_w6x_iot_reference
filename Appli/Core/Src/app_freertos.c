@@ -222,13 +222,21 @@ void StartDefaultTask(void *argument)
 
   KVStore_getStringHeap(CS_CORE_THING_NAME, &xLength);
 
-  if (xLength <= 0)
+  if ((xLength == 0) || (xLength == -1))
   {
     char *democonfigFP_DEMO_ID = pvPortMalloc(democonfigMAX_THING_NAME_LENGTH);
+
+#if defined(HAL_ICACHE_MODULE_ENABLED)
+  HAL_ICACHE_Disable();
+#endif
 
     uint32_t uid0 = HAL_GetUIDw0();
     uint32_t uid1 = HAL_GetUIDw1();
     uint32_t uid2 = HAL_GetUIDw2();
+
+#if defined(HAL_ICACHE_MODULE_ENABLED)
+  HAL_ICACHE_Enable();
+#endif
 
     snprintf(democonfigFP_DEMO_ID, democonfigMAX_THING_NAME_LENGTH, democonfigDEVICE_PREFIX"-%08X%08X%08X", (int)uid0, (int)uid1, (int)uid2);
 

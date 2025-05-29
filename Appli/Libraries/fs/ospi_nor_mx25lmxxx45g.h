@@ -27,7 +27,7 @@
 
 #ifndef _OSPI_NOR_DRV
 #define _OSPI_NOR_DRV
-
+#include "main.h"
 #if defined(HAL_OSPI_MODULE_ENABLED)
 /*
  *  512 Mbit = 64 MByte

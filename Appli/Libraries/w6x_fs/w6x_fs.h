@@ -35,7 +35,7 @@
 /* Exported functions prototypes ---------------------------------------------*/
 bool W6X_FileInit(void);
 W6X_Status_t W6X_CheckFile  (const char *file_name);
-W6X_Status_t W6X_ReadFile   (const char *file_name, char *file_data, uint32_t *puFileSize);
+W6X_Status_t W6X_ReadFile   (const char *file_name, char **file_data, uint32_t *puFileSize);
 W6X_Status_t W6X_WriteFile  (const char *file_name, char *file_data, uint32_t *puFileSize);
 W6X_Status_t W6X_GetFileSize(const char *file_name, uint32_t *puFileSize);
 
@@ -45,7 +45,7 @@ W6X_Status_t W6X_CreateFile (const char *file_name);
 W61_Object_t *W6X_GetDefaultFsCtx(void);
 W6X_Status_t  W6X_file_stat    (W61_Object_t *pLfsCtx, const char *pcFileName, uint32_t *puFileSize);
 W6X_Status_t  W6X_file_validate(W61_Object_t *pLfsCtx, const char *pcFileName);
-W6X_Status_t  W6X_file_read    (W61_Object_t *pLfsCtx, const char *pcFileName, char* pData, uint32_t *puFileSize);
+W6X_Status_t  W6X_file_read    (W61_Object_t *pLfsCtx, const char *pcFileName, char** ppData, uint32_t *puFileSize);
 W6X_Status_t  W6X_file_write   (W61_Object_t *pLfsCtx, const char *pcFileName, char* pData, uint32_t uFileSize);
 W6X_Status_t  W6X_file_create  (W61_Object_t *pLfsCtx, const char *pcFileName);
 W6X_Status_t  W6X_file_delete  (W61_Object_t *pLfsCtx, const char *pcFileName);

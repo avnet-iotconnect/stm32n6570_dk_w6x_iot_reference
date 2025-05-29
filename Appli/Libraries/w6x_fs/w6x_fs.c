@@ -62,9 +62,9 @@ W6X_Status_t W6X_file_validate(W61_Object_t *pLfsCtx, const char *pcFileName)
   return W6X_CheckFile(pcFileName);
 }
 
-W6X_Status_t W6X_file_read(W61_Object_t *pLfsCtx, const char *pcFileName, char* pData, uint32_t *puFileSize)
+W6X_Status_t W6X_file_read(W61_Object_t *pLfsCtx, const char *pcFileName, char** ppData, uint32_t *puFileSize)
 {
-  return W6X_ReadFile(pcFileName, pData, puFileSize);
+  return W6X_ReadFile(pcFileName, ppData, puFileSize);
 }
 
 W6X_Status_t W6X_file_write(W61_Object_t *pLfsCtx, const char *pcFileName, char* pData, uint32_t uFileSize)
@@ -141,6 +141,52 @@ W6X_Status_t W6X_CheckFile(const char *pcFileName)
   return xStatus;
 }
 
+#if 1
+W6X_Status_t W6X_ReadFile(const char *pcFileName, char **file_data, uint32_t *puFileSize)
+{
+#define MAX_READ_SIZE 128
+    uint8_t buf[MAX_READ_SIZE] = {0};
+    uint32_t size = 0;
+    uint32_t read_offset = 0;
+    W6X_Status_t xStatus = W6X_STATUS_OK;
+
+    // Get file size and handle errors
+    if (W6X_FS_GetSizeFile((char *) pcFileName, &size) != W6X_STATUS_OK || size == 0)
+    {
+        LogError("Error: Unable to get valid file size");
+        return W6X_STATUS_ERROR;
+    }
+
+    *puFileSize = size;
+
+    if(size > 0)
+    {
+      *file_data = (char *)pvPortMalloc(size);
+    }
+
+    while (read_offset < size)
+    {
+        uint32_t chunk_size = (size - read_offset < MAX_READ_SIZE) ? (size - read_offset) : MAX_READ_SIZE;
+
+        xStatus = W6X_FS_ReadFile((char *) pcFileName, read_offset, buf, chunk_size);
+
+        if (xStatus != W6X_STATUS_OK)
+        {
+            LogError("Error: Unable to read file");
+            vPortFree(*file_data);  // Cleanup allocated memory before returning
+            return xStatus;
+        }
+
+        memcpy(*file_data + read_offset, buf, chunk_size);
+
+        read_offset += chunk_size;
+    }
+
+    return W6X_STATUS_OK;
+}
+
+
+#else
 W6X_Status_t W6X_ReadFile(const char *pcFileName, char *file_data, uint32_t *puFileSize)
 {
   uint32_t offset = 0;
@@ -162,6 +208,7 @@ W6X_Status_t W6X_ReadFile(const char *pcFileName, char *file_data, uint32_t *puF
 
   return xStatus;
 }
+#endif
 
 W6X_Status_t W6X_WriteFile(const char *pcFileName, char *file_data, uint32_t *puFileSize)
 {

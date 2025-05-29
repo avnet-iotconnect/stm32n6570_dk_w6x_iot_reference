@@ -232,6 +232,7 @@ class TargetDevice:
         else:
             self._send_cmd(b"pki generate key")
 
+        time.sleep(2)  # Allow time for the target to generate the key
         pubkey = self._read_pem()
 
         return pubkey

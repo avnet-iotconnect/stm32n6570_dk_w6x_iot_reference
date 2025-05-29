@@ -28,7 +28,7 @@
 #include "logging_levels.h"
 /* define LOG_LEVEL here if you want to modify the logging level from the default */
 
-#define LOG_LEVEL    LOG_ERROR
+#define LOG_LEVEL    LOG_INFO
 
 #include "logging.h"
 
@@ -446,6 +446,8 @@ void vMotionSensorsPublish( void * pvParameters )
 
             if( ( lbytesWritten < MQTT_PUBLISH_MAX_LEN ) && ( xIsMqttAgentConnected() == pdTRUE ) )
             {
+                LogInfo(( "Sending publish message to topic: %s , message : %*s", pcTopicString, lbytesWritten, ( char * ) pcPayloadBuf ));
+
                 xResult = prvPublishAndWaitForAck( xAgentHandle,
                                                    pcTopicString,
                                                    pcPayloadBuf,

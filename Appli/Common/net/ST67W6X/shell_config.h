@@ -25,7 +25,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32u5xx_hal.h"
+#include "main.h"
 
 /* Exported constants --------------------------------------------------------*/
 /*

@@ -66,6 +66,7 @@ extern void xPortSysTickHandler(void);
 
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
+extern IWDG_HandleTypeDef hiwdg;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel1;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 extern SPI_HandleTypeDef hspi5;
@@ -185,6 +186,20 @@ void DebugMon_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32n6xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles IWDG global interrupt.
+  */
+void IWDG_IRQHandler(void)
+{
+  /* USER CODE BEGIN IWDG_IRQn 0 */
+
+  /* USER CODE END IWDG_IRQn 0 */
+  HAL_IWDG_IRQHandler(&hiwdg);
+  /* USER CODE BEGIN IWDG_IRQn 1 */
+
+  /* USER CODE END IWDG_IRQn 1 */
+}
 
 /**
   * @brief This function handles EXTI Line9 interrupt.

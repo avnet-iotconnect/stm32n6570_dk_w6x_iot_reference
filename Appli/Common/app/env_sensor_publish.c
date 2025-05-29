@@ -364,6 +364,8 @@ void vEnvironmentSensorPublishTask(void *pvParameters)
 
       if( ( lbytesWritten < MQTT_PUBLISH_MAX_LEN ) && ( xIsMqttAgentConnected() == pdTRUE ) )
       {
+    	  LogInfo(( "Sending publish message to topic: %s , message : %*s", pcTopicString, lbytesWritten, ( char * ) pcPayloadBuf ));
+
         xResult = prvPublishAndWaitForAck(xAgentHandle,
                                           pcTopicString,
                                           pcPayloadBuf,

@@ -108,7 +108,7 @@ W6X_Status_t W6X_Init(void)
   p_module_info = (W6X_ModuleInfo_t *)&p_DrvObj->ModuleInfo;
 
   /* Display the W61 info in banner */
-  (void)W6X_ModuleInfoDisplay();
+//  (void)W6X_ModuleInfoDisplay();
 
 #if (LFS_ENABLE == 1)
   /* Initialize the File system with user certificates */

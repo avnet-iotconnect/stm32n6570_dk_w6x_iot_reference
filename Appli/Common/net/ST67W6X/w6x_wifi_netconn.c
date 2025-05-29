@@ -17,10 +17,6 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
 /* Application */
 #include "main.h"
 #include "app_config.h"
@@ -46,6 +42,10 @@
 #if MQTT_ENABLED
 #include "core_mqtt_serializer.h"
 #endif
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 /* Global variables ----------------------------------------------------------*/
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,6 +67,8 @@ extern W6X_MQTT_Data_t *pxMQTTRecvData;
 
 extern QueueHandle_t xSubMsgQueue;
 #endif
+
+static   W6X_Connect_Opts_t ConnectOpts = { 0 };
 /* Private function prototypes -----------------------------------------------*/
 /**
  * @brief Wi-Fi event callback
@@ -204,7 +206,6 @@ static int32_t APP_WiFi_Scan(void)
 static int32_t APP_WiFi_Connect(void)
 {
   int32_t ret = W6X_STATUS_OK;
-  W6X_Connect_Opts_t ConnectOpts = { 0 };
 
   /* Connect the device to the pre-defined Access Point */
   LogInfo("Connecting to Local Access Point");
@@ -256,6 +257,18 @@ void W6X_WiFi_Task(void *pvParameters)
     ret = APP_WiFi_Init();
   }
 
+#if defined(LFS_CONFIG)
+  if(KVStore_getString(CS_WIFI_SSID, (char*) ConnectOpts.SSID, W6X_WIFI_MAX_SSID_SIZE) == 0)
+  {
+    while(1)
+    {
+      vTaskDelay(1000);
+    }
+  }
+#endif
+
+  (void)W6X_ModuleInfoDisplay();
+
   EventBits_t xEvent = 0;
 
   while (1)
@@ -271,7 +284,7 @@ void W6X_WiFi_Task(void *pvParameters)
 
       if (ret == W6X_STATUS_OK)
       {
-        ret = APP_WiFi_Connect();
+        APP_WiFi_Connect();
       }
 
       xEvent = xEventGroupWaitBits(xSystemEvents, EVT_MASK_NET_CONNECTED, pdFALSE, pdTRUE, pdMS_TO_TICKS(5000));
@@ -404,5 +417,3 @@ static void APP_ble_cb(W6X_event_id_t event_id, void *event_args)
 {
 
 }
-
-

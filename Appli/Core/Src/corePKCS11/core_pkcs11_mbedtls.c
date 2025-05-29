@@ -3294,7 +3294,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         #endif /* MBEDTLS_VERSION_NUMBER < 0x03000000 */
 
 
-#if defined(__USE_STSAFE__)
+#if PKCS11_PAL_SECURE_ELEMENT
             if( lMbedTLSResult != 0 )
             {
               lMbedTLSResult = mbedtls_pk_parse_public_key( &xKeyContext,
@@ -4373,7 +4373,7 @@ static CK_RV prvSignInitEC_RSAKeys( P11Session_t * pxSession,
                                                mbedtls_ctr_drbg_random, &xP11Context.xMbedDrbgCtx );
     #endif /* MBEDTLS_VERSION_NUMBER < 0x03000000 */
 
-#if defined(__USE_STSAFE__)
+#if PKCS11_PAL_SECURE_ELEMENT
         if(lMbedTLSResult)
         {
           lMbedTLSResult = mbedtls_pk_parse_public_key(&pxSession->xSignKey,

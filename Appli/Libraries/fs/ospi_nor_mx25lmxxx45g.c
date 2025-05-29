@@ -24,7 +24,7 @@
  * https://github.com/FreeRTOS
  *
  */
-
+#include "main.h"
 #if defined(HAL_OSPI_MODULE_ENABLED)
 #include "logging_levels.h"
 #define LOG_LEVEL    LOG_DEBUG

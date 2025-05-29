@@ -975,7 +975,7 @@ MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
                   ( unsigned long ) remainingLength ) );
   }
 
-  LogInfo("Subscribing to topic           =\"%s\"", pSubscriptionList->pTopicFilter);
+  LogInfo("Subscribing to topic =\"%s\"", pSubscriptionList->pTopicFilter);
 
   if (xMQTTStatus == MQTTSuccess)
   {
