@@ -210,7 +210,7 @@ const char * otaImageStateToString( OtaImageState_t xState )
     return pcStateString;
 }
 
-const char * otaPalImageStateToString( xPalImageState )
+const char * otaPalImageStateToString( OtaPalImageState_t xPalImageState )
 {
     const char * pcPalImageState;
 

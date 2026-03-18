@@ -270,13 +270,13 @@ static void MX_LPUART1_UART_Init(void)
   /* RIF-Aware IPs Config */
 
   /* set up GPDMA configuration */
-  /* set GPDMA1 channel 0 */
-  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel0,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV)!= HAL_OK )
+  /* set GPDMA1 channel 0 used by SPI5 */
+  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel0,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV|DMA_CHANNEL_SRC_SEC|DMA_CHANNEL_DEST_SEC)!= HAL_OK )
   {
     Error_Handler();
   }
-  /* set GPDMA1 channel 1 */
-  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel1,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV)!= HAL_OK )
+  /* set GPDMA1 channel 1 used by SPI5 */
+  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel1,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV|DMA_CHANNEL_SRC_SEC|DMA_CHANNEL_DEST_SEC)!= HAL_OK )
   {
     Error_Handler();
   }
@@ -546,11 +546,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(ARD_D10_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_IRQn);
+  HAL_NVIC_SetPriority(ARD_D03_EXTI_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(ARD_D03_EXTI_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI12_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI12_IRQn);
+  HAL_NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -611,8 +611,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

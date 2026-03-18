@@ -133,11 +133,11 @@ void Error_Handler(void);
 #define MBEDTLS_DEBUG_THRESHOLD                 MBEDTLS_DEBUG_INFO
 
 /******************** Tasks config ********************/
-#define DEMO_PUB_SUB                            1
-#define DEMO_OTA                                1
-#define DEMO_ENV_SENSOR                         1
-#define DEMO_MOTION_SENSOR                      1
-#define DEMO_SHADOW                             1
+#define DEMO_PUB_SUB                            0
+#define DEMO_OTA                                0
+#define DEMO_ENV_SENSOR                         0
+#define DEMO_MOTION_SENSOR                      0
+#define DEMO_SHADOW                             0
 #define DEMO_DEFENDER                           0
 #define DEMO_SNTP                               0
 
@@ -184,6 +184,9 @@ void Error_Handler(void);
 #define BOARD                                   "stm32n6570_dk"
 #define democonfigDEVICE_PREFIX                 "stm32n6"
 #define OTA_FILE_NAME                           "stm32n6570_dk_w6x_iot_reference_Appli.bin"
+
+#define DEFAULT_SSID "JSEC"
+#define DEFAULT_PSWD "STM32F103RBT6"
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

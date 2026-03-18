@@ -52,6 +52,7 @@ int lfs_port_unlock( const struct lfs_config * c )
     return ( int ) ( xReturnVal == pdTRUE ? 0 : -1 );
 }
 
+#if defined LFS_CRC
 /* The following function lfs_crc is derived from lfs_util.c and
  * is available under the following terms:
  * Copyright (c) 2017, Arm Limited. All rights reserved.
@@ -79,3 +80,4 @@ uint32_t lfs_crc( uint32_t crc,
 
     return crc;
 }
+#endif

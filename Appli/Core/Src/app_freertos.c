@@ -37,9 +37,8 @@
 #include "semphr.h"
 
 #include <string.h>
-#if defined(LFS_CONFIG)
-#include "lfs.h"
-#include "lfs_port.h"
+#if 1//defined(LFS_CONFIG)
+
 #endif
 #include "kvstore.h"
 #include "sys_evt.h"
@@ -70,19 +69,24 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 EventGroupHandle_t xSystemEvents = NULL;
-#if defined(LFS_CONFIG)
-static lfs_t *pxLfsCtx = NULL;
-#endif
+
 /* USER CODE END Variables */
 
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 void vInitTask(void *pvArgs);
-#if defined(LFS_CONFIG)
+
+#if 1//defined(LFS_CONFIG)
+#include "lfs.h"
+#include "lfs_port.h"
+
+static lfs_t *pxLfsCtx = NULL;
+
 static int fs_init(void);
 lfs_t* pxGetDefaultFsCtx(void);
-#endif
+#endif /* LFS_CONFIG */
+
 
 extern void otaPal_EarlyInit(void);
 
@@ -174,13 +178,17 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN defaultTask */
   BaseType_t xResult;
 
+#if (DEMO_OTA || DEMO_SHADOW)
   char * pucMqttEndpoint;
   size_t uxMqttEndpointLen = -1;
+#endif
 
 #if defined(LFS_CONFIG)
   int xMountStatus;
 #endif
   (void) argument;
+
+  xResult = xResult;
 
   LogInfo("Task started: %s\n", __func__);
 
@@ -216,8 +224,10 @@ void StartDefaultTask(void *argument)
     LogError("Failed to mount file system.");
   }
 #endif
+
   (void) xEventGroupClearBits( xSystemEvents, EVT_MASK_NET_CONNECTED );
 
+#if defined(LFS_CONFIG)
   size_t xLength;
 
   KVStore_getStringHeap(CS_CORE_THING_NAME, &xLength);
@@ -246,6 +256,7 @@ void StartDefaultTask(void *argument)
 
     vPortFree(democonfigFP_DEMO_ID);
   }
+#endif
 
 #if defined(ST67W6X)
   xResult = xTaskCreate(W6X_WiFi_Task, "w6x_wifi", TASK_STACK_SIZE_W6X, NULL, TASK_PRIO_W6X, NULL);
@@ -302,7 +313,7 @@ void StartDefaultTask(void *argument)
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-#if defined(LFS_CONFIG)
+#if 1//defined(LFS_CONFIG)
 lfs_t* pxGetDefaultFsCtx(void)
 {
   while (pxLfsCtx == NULL)
