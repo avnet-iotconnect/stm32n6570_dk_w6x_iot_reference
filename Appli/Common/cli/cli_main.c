@@ -340,8 +340,8 @@ void Task_CLI( void * pvParameters )
 #if defined(ST67W6X_NCP)
     FreeRTOS_CLIRegisterCommand( &xCommandDef_w6x_fs );
 #endif
-//    FreeRTOS_CLIRegisterCommand( &xCommandDef_conf );
-//    FreeRTOS_CLIRegisterCommand( &xCommandDef_pki );
+    FreeRTOS_CLIRegisterCommand( &xCommandDef_conf );
+    FreeRTOS_CLIRegisterCommand( &xCommandDef_pki );
     FreeRTOS_CLIRegisterCommand( &xCommandDef_ps );
     FreeRTOS_CLIRegisterCommand( &xCommandDef_kill );
     FreeRTOS_CLIRegisterCommand( &xCommandDef_killAll );

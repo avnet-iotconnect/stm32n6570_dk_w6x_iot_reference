@@ -200,11 +200,11 @@ void StartDefaultTask(void *argument)
 #endif
   (void) argument;
 
+  xTaskCreate(Task_CLI, "cli", TASK_STACK_SIZE_CLI, NULL, TASK_PRIO_CLI, NULL);
+
   LogInfo("Task started: %s\n", __func__);
 
   xSystemEvents = xEventGroupCreate();
-
-  xTaskCreate(Task_CLI, "cli", TASK_STACK_SIZE_CLI, NULL, TASK_PRIO_CLI, NULL);
 
 #if defined(LFS_CONFIG)
   xMountStatus = fs_init();
@@ -234,6 +234,11 @@ void StartDefaultTask(void *argument)
   else
   {
     LogError("Failed to mount file system.");
+
+    while(1)
+    {
+    	vTaskDelay(1000);
+    }
   }
 #endif
 
