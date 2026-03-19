@@ -120,8 +120,8 @@ AWS behavior:
 
 After provisioning, use these feature guides:
 
-- [LED Control Example](../project/Common/app/led/readme.md)
-- [Button Status Example](../project/Common/app/button/readme.md)
+- [LED Control Example](../Appli/Common/app/led/readme.md)
+- [Button Status Example](../Appli/Common/app/button/readme.md)
 
 ## For Other Configurations
 
