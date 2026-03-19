@@ -106,7 +106,17 @@ If already cloned without submodules:
 git submodule update --init --recursive
 ```
 
-### 2. Quick start with flash and provision using scripts
+### 2. Update X-NUCLEO-67W61M1 to T02 mode
+
+Before running the firmware flow, update the [X-NUCLEO-67W61M1](https://www.st.com/en/evaluation-tools/x-nucleo-67w61m1.html) module and select **T02** mode.
+
+Update package and instructions:
+
+- https://github.com/STMicroelectronics/x-cube-st67w61/tree/main/Projects/ST67W6X_Scripts/Binaries
+
+Make sure to use the **`NCP_update_mission_profile_t02`** scripts when updating the module.
+
+### 3. Quick start with flash and provision using scripts
 
 Use the script-based flow in:
 
@@ -114,14 +124,14 @@ Use the script-based flow in:
 
 This is the quick path for bring-up, using prebuilt binaries and a script-based flashing and provisioning process.
 
-### 3. Build in STM32CubeIDE
+### 4. Build in STM32CubeIDE
 
 - Import repository in STM32CubeIDE
 - Build both projects:
   - `FSBL`
   - `Appli`
 
-### 4. Debug in STM32CubeIDE
+### 5. Debug in STM32CubeIDE
 
 - Set the STM32N6570-DK board to **Dev mode** before starting a debug session.
 - Use the provided debug configuration.
@@ -130,7 +140,7 @@ This is the quick path for bring-up, using prebuilt binaries and a script-based 
   - `Appli` into RAM
 - Use **hardware breakpoints** when setting breakpoints in the projects.
 
-### 5. Flash Firmware
+### 6. Flash Firmware
 
 - Build `FSBL` in **Release** mode.
 - Set the STM32N6570-DK board to **Dev mode**.
