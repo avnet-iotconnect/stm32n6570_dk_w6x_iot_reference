@@ -37,7 +37,7 @@ This project is intended to provide a clear bring-up path for secure MQTT connec
 ## Supported Hardware
 
 - Main board: [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html)
-- Wi-Fi module: ST67W611M1
+- Wi-Fi module: [X-NUCLEO-67W61M1](https://www.st.com/en/evaluation-tools/x-nucleo-67w61m1.html)
 
 ## Scope and Limitations
 
@@ -50,7 +50,7 @@ This project is intended to provide a clear bring-up path for secure MQTT connec
 
 ## Software Components
 
-### FreeRTOS, LwIP, MbedTLS
+### FreeRTOS, LwIP, MbedTLS,
 
 The application stack is based on:
 
