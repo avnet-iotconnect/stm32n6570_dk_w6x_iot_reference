@@ -66,7 +66,9 @@ extern void xPortSysTickHandler(void);
 
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
+#if defined(HAL_IWDG_MODULE_ENABLED)
 extern IWDG_HandleTypeDef hiwdg;
+#endif
 extern DMA_HandleTypeDef handle_GPDMA1_Channel1;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 extern SPI_HandleTypeDef hspi5;
@@ -193,11 +195,11 @@ void DebugMon_Handler(void)
 void IWDG_IRQHandler(void)
 {
   /* USER CODE BEGIN IWDG_IRQn 0 */
-
+#if defined(HAL_IWDG_MODULE_ENABLED)
   /* USER CODE END IWDG_IRQn 0 */
   HAL_IWDG_IRQHandler(&hiwdg);
   /* USER CODE BEGIN IWDG_IRQn 1 */
-
+#endif
   /* USER CODE END IWDG_IRQn 1 */
 }
 
@@ -216,9 +218,9 @@ void EXTI9_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles EXTI Line12 interrupt.
+  * @brief This function handles EXTI Line13 interrupt.
   */
-void EXTI12_IRQHandler(void)
+void EXTI13_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI12_IRQn 0 */
 

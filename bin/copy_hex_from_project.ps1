@@ -12,8 +12,8 @@ $filesToCopy = @(
         Target = Join-Path $binDir "Appli\Debug\stm32n6570_dk_w6x_iot_reference_Appli.bin"
     }
     @{
-        Source = Join-Path $repoRoot "FSBL\Debug\stm32n6570_dk_w6x_iot_reference_FSBL.bin"
-        Target = Join-Path $binDir "FSBL\Debug\stm32n6570_dk_w6x_iot_reference_FSBL.bin"
+        Source = Join-Path $repoRoot "FSBL\Release\stm32n6570_dk_w6x_iot_reference_FSBL.bin"
+        Target = Join-Path $binDir "FSBL\Release\stm32n6570_dk_w6x_iot_reference_FSBL.bin"
     }
 )
 

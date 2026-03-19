@@ -1,165 +1,179 @@
+# STM32N6570-DK IoT Reference (ST67W611M1, FreeRTOS, MQTT over TLS)
 
-# STM32N6570-DK and ST67 IoT Reference integration
-## 1. Introduction
-This project demonstrates how to integrate modular [ FreeRTOS kernel ](https://www.freertos.org/RTOS.html) and [ libraries ](https://www.freertos.org/libraries/categories.html). The project is pre-configured to run on the [ STM32N6570-DK ](https://www.st.com/en/evaluation-tools/stm32n6570-dk.htmll) board with [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html).
+[![Board: STM32N6570-DK](https://img.shields.io/badge/Board-STM32N6570--DK-03234B)](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html)
+[![RTOS: FreeRTOS](https://img.shields.io/badge/RTOS-FreeRTOS-1A73E8)](https://www.freertos.org/)
+[![Network: LwIP](https://img.shields.io/badge/Network-LwIP-006064)](https://savannah.nongnu.org/projects/lwip/)
+[![TLS: MbedTLS 3.1.1](https://img.shields.io/badge/TLS-MbedTLS%203.1.1-283593)](https://www.keil.arm.com/packs/mbedtls-arm/versions/)
+[![Wi-Fi: ST67W611M1](https://img.shields.io/badge/Wi--Fi-ST67W611M1-0B8043)](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE.md)
 
-The *Project* is a [Non-TrustZone](https://www.arm.com/technologies/trustzone-for-cortex-m) project which  demonstrate connecting to MQTT broker over 2.4 GHz Wi-Fi.
+This repository is a practical IoT firmware reference for **STM32N6570-DK** using the **ST67W611M1** Wi-Fi module. It demonstrates **MQTT over TLS** with a modular software stack based on **FreeRTOS**, **LwIP**, and **MbedTLS**.
 
-The project can connect to any MQTT broker including AWS. It has been tested with [broker.emqx.io](https://www.emqx.com/en/mqtt/public-mqtt5-broker), [test.mosquitto.org](https://test.mosquitto.org/) and [amazonaws.com](https://aws.amazon.com/)
+## Table of Contents
 
-The demo project connect to MQTT broker via the [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html) Wi-Fi module and use the [CoreMQTT-Agent](https://github.com/FreeRTOS/coreMQTT-Agent) library to share a single MQTT connection among multiple tasks.
+- [Why This Project](#why-this-project)
+- [Supported Hardware](#supported-hardware)
+- [Scope and Limitations](#scope-and-limitations)
+- [Software Components](#software-components)
+- [Security and Storage Architecture](#security-and-storage-architecture)
+- [Getting Started](#getting-started)
+- [Debug in STM32CubeIDE](#debug-in-stm32cubeide)
+- [Flash Firmware](#flash-firmware)
+- [Provisioning Guides](#provisioning-guides)
+- [Run the Examples](#run-the-examples)
+- [Required CMSIS Packs](#required-cmsis-packs)
+- [Git Submodules](#git-submodules)
+- [STM32CubeMX Regeneration Note](#stm32cubemx-regeneration-note)
 
-## 2. MQTT Demos
-The following demos can be used with any MQTT broker.
+## Why This Project
 
-* Publish and Subscribe
-* EnvironmentSensor
-* MotionSensors
+This project is intended to provide a clear bring-up path for secure MQTT connectivity on STM32N6 with reusable building blocks:
 
-## 3. AWS IoT Core Demo Tasks
-Demonstration tasks for the following AWS services:
-* [AWS IoT Device Shadow](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html)
-* [AWS IoT OTA Update](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html)
-* [AWS IoT Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html)
-* [MQTT File Delivery](https://docs.aws.amazon.com/iot/latest/developerguide/mqtt-based-file-delivery.html)
+- FreeRTOS task-based application architecture
+- MQTT over TLS integration
+- Unified runtime configuration through CLI and KVS
+- PKCS#11-based certificate/key handling
 
+## Supported Hardware
 
-## 4. Key Software Components
-### Mbedtls 3.1.1 TLS and Cryptography library
-See [ MbedTLS ](https://www.keil.arm.com/packs/mbedtls-arm/versions/) for details.
+- Main board: [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html)
+- Wi-Fi module: ST67W611M1
+
+## Scope and Limitations
+
+### Supported
+
+- ST67_T02-based configuration only
+- Single Thing provisioning workflow
+- LED example
+- Button example
+
+## Software Components
+
+### FreeRTOS, LwIP, MbedTLS
+
+The application stack is based on:
+
+- FreeRTOS kernel
+- LwIP network stack
+- MbedTLS TLS/crypto library
 
 ### Command Line Interface (CLI)
-The CLI interface located in the Common/cli directory is used to provision the device. It also provides other Unix-like utilities. See [Common/cli](Common/cli/ReadMe.md) for details.
 
-### Key-Value Store
-The key-value store located in the Common/kvstore directory is used to store runtime configuration values in STM32's internal flash memory.
-See [Common/kvstore](Common/kvstore/ReadMe.md) for details.
+The device CLI is used for runtime setup and provisioning commands.  
+See: [Appli/Common/cli/ReadMe.md](Appli/Common/cli/ReadMe.md)
 
 ### PkiObject API
-The PkiObject API takes care of some of the mundane tasks in converting between different representations of cryptographic objects such as public keys, private keys, and certificates. See [Common/crypto](Common/crypto/ReadMe.md) for details.
 
-## 5. Get started with the project
+The PkiObject layer handles representation and conversion of certificates/keys used by TLS and provisioning workflows.  
+See: [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/ReadMe.md)
 
-### 5.1 Cloning the Repository
-To clone using HTTPS:
+## Security and Storage Architecture
+
+This project keeps the PKCS11/KVS split, with storage on STM32 internal flash.
+
+- `PKCS#11`: cryptographic objects (device key/certificates, CA certificates)
+- `KVS`: runtime configuration (MQTT endpoint/port, Wi-Fi credentials, thing name)
+
+```text
+                      ┌────────────────────────────┐
+                      │   Application Layer        │
+                      │  (TLS, MQTT, Wi-Fi setup)  │
+                      └──────┬──────────┬──────────┘
+                             │          │
+                        ┌────▼────┐┌────▼────┐
+Manage keys and certs ->│ PKCS#11 ││  KVS    │ <- stores runtime config
+                        └────┬────┘└────┬────┘
+                             │          │
+                      ┌──────▼──────────▼────────┐
+                      │ Storage Backend Layer    │
+                      ├──────────────────────────┤
+                      │ External Flash           │
+                      └──────────────────────────┘
 ```
+
+## Getting Started
+
+### 1. Clone with submodules
+
+```bash
 git clone https://github.com/SlimJallouli/stm32n6570_dk_w6x_iot_reference.git --recurse-submodules
 ```
 
-If you have downloaded the repo without using the `--recurse-submodules` argument, you should run:
+If already cloned without submodules:
 
-```
+```bash
 git submodule update --init --recursive
 ```
 
-### 5.2 Build the project
-* Import the project with [STM32CubeIDE](http://www.st.com/stm32cubeide)
-* Build the FSBL and Appli projects
+### 2. Quick start with flash and provision using scripts
 
+Use the script-based flow in:
 
-![alt text](<assets/Screenshot 2025-05-19 113547.png>)\
+- [bin/readme.md](bin/readme.md)
 
-### 5.3 Flash the project
+This is the quick path for bring-up, using prebuilt binaries and a script-based flashing and provisioning process.
 
-* Set the boot pins to DEV mode (Add picture)
+### 3. Build in STM32CubeIDE
 
-* Powercycle the board
+- Import repository in STM32CubeIDE
+- Build both projects:
+  - `FSBL`
+  - `Appli`
 
-* Use the flash.sh script to flash the FSBL and Application to your board.
+### 4. Debug in STM32CubeIDE
 
-* Set the boot pins to Flash mode.
+- Set the STM32N6570-DK board to **Dev mode** before starting a debug session.
+- Use the provided debug configuration.
+- The debug configuration loads:
+- `FSBL` in debug mode
+  - `Appli` into RAM
+- Use **hardware breakpoints** when setting breakpoints in the projects.
 
-* Reset the board
+### 5. Flash Firmware
 
-## 6. Connect the board to generic MQTT Broker
+- Build `FSBL` in **Release** mode.
+- Set the STM32N6570-DK board to **Dev mode**.
+- Flash firmware using one of the provided scripts:
+  - `flash.ps1` (PowerShell)
+  - `flash.sh` (shell)
 
-Use a serial terminal like [TeraTerm](https://teratermproject.github.io/index-en.html) or [Web based Serial terminal](https://googlechromelabs.github.io/serial-terminal/)
+## Provisioning Guides
 
-Connect to the board 115200, 8 bits, 1 Stop bit, No parity
+Available guides in this repository:
 
-Use the CLI to connect the board to the MQTT Broker
+- [Provision and Run with AWS (CLI)](provision_aws_single_cli.md)
+- [Provision and Run with AWS (Script)](provision_aws_single_script.md)
+- [Provision and Run with test.mosquitto.org](provision_mosquitto.md)
 
-* Connect to [broker.emqx.io](https://www.emqx.com/en/mqtt/public-mqtt5-broker)
-```
-conf set thing_name <YourThingName>
-conf set wifi_ssid <YourWiFiSSID>
-conf set wifi_credential <YourWiFiPassword>
-conf set mqtt_endpoint  broker.emqx.io
-conf set mqtt_port 1883
-conf set mqtt_security 0
-conf commit
-reset
-```
+## Run the Examples
 
-* Connect to [test.mosquitto.org](https://test.mosquitto.org/)
-```
-conf set thing_name <YourThingName>
-conf set wifi_ssid <YourWiFiSSID>
-conf set wifi_credential <YourWiFiPassword>
-conf set mqtt_endpoint  test.mosquitto.org
-conf set mqtt_port 1883
-conf set mqtt_security 0
-conf commit
-reset
-```
+After provisioning, run:
 
-![alt text](<assets/Screenshot 2025-05-08 163343.png>)
+- [LED Control Example](Appli/Common/app/led/readme.md)
+- [Button Status Example](Appli/Common/app/button/readme.md)
 
-## 7. Connect to AWS
+## Required CMSIS Packs
 
-### 7.1 Delete cerrts on ST67
+Install these packs before opening the `.ioc` file:
 
-Use the serial termina to delete any certs present on ST67
+- [ARM.CMSIS-FreeRTOS 11.2.0](https://www.keil.com/pack/ARM.CMSIS-FreeRTOS.11.2.0.pack)
+- [ARM.mbedTLS 3.1.1](https://www.keil.com/pack/ARM.mbedTLS.3.1.1.pack)
+- [AWS backoffAlgorithm 4.2.0](https://freertos-cmsis-packs.s3.us-west-2.amazonaws.com/AWS.backoffAlgorithm.4.2.0.pack)
+- [AWS coreJSON 4.2.0](https://freertos-cmsis-packs.s3.us-west-2.amazonaws.com/AWS.coreJSON.4.2.0.pack)
+- [AWS coreMQTT 5.1.0](https://freertos-cmsis-packs.s3.us-west-2.amazonaws.com/AWS.coreMQTT.5.1.0.pack)
+- [AWS coreMQTT_Agent 5.1.0](https://freertos-cmsis-packs.s3.us-west-2.amazonaws.com/AWS.coreMQTT_Agent.5.1.0.pack)
+- [lwIP 2.3.0](https://www.keil.com/pack/lwIP.lwIP.2.3.0.pack)
+- [X-CUBE-ST67W61](https://www.st.com/en/embedded-software/x-cube-st67w61.html)
 
-* Use **w6x_fs ls** to list all the files present on ST67 file system
+## Git Submodules
 
-* Use **w6x_fs rm < filename >** to delete a file
+- [corePKCS11](https://github.com/FreeRTOS/corePKCS11)
+- [littlefs](https://github.com/littlefs-project/littlefs)
+- [tinycbor](https://github.com/intel/tinycbor)
 
+## STM32CubeMX Regeneration Note
 
-### 7.1 [Single Thing Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/single-thing-provisioning.html)
+After regenerating code with STM32CubeMX, run:
 
-[Single Thing Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/single-thing-provisioning.html), is a method used to provision individual IoT devices in AWS IoT Core. This method is ideal for scenarios where you need to provision devices one at a time.
-
-In this method you have two options. Automated using Python script or manual.
-
-1. [Provision automatically with provision.py](https://github.com/FreeRTOS/iot-reference-stm32u5/blob/main/Getting_Started_Guide.md#option-8a-provision-automatically-with-provisionpy)
-
-This method involves using a Python script [(provision.py)](https://github.com/FreeRTOS/iot-reference-stm32u5/blob/main/tools/provision.py) to automate the onboarding process of IoT devices to AWS IoT Core. It simplifies the process by handling the device identity creation, registration, and policy attachment automatically. follow this [link](https://github.com/FreeRTOS/iot-reference-stm32u5/blob/main/Getting_Started_Guide.md#option-8a-provision-automatically-with-provisionpy) for instructions
-
-2. [Provision Manually via CLI](https://github.com/FreeRTOS/iot-reference-stm32u5/blob/main/Getting_Started_Guide.md#option-8b-provision-manually-via-cli)
-
-This method requires manually provisioning devices using the AWS Command Line Interface (CLI). It involves creating device identities, registering them with AWS IoT Core, and attaching the necessary policies for device communication. Follow this  [link](https://github.com/FreeRTOS/iot-reference-stm32u5/blob/main/Getting_Started_Guide.md#option-8b-provision-manually-via-cli) for instructions.
-
-## 8. CMSIS Packs
-
-If you need to regenerate the project with STM32CubeMX, then you need to dowload and install the following CMSIS packs.
-
-[CMSIS-FreeRTOS 11.1.0](https://www.keil.com/pack/ARM.CMSIS-FreeRTOS.11.1.0.pack)
-
-[mbedTLS 3.1.1](https://www.keil.com/pack/ARM.mbedTLS.3.1.1.pack)
-
-[AWS_IoT_Over-the-air_Update 5.0.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.AWS_IoT_Over-the-air_Update.5.0.1.pack)
-
-[AWS_IoT_Device_Shadow 5.0.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.AWS_IoT_Device_Shadow.5.0.1.pack)
-
-[backoffAlgorithm 4.1.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.backoffAlgorithm.4.1.1.pack)
-
-[coreJSON 4.1.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.coreJSON.4.1.1.pack)
-
-[coreMQTT 5.0.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.coreMQTT.5.0.1.pack)
-
-[coreMQTT_Agent 5.0.1](https://d1pm0k3vkcievw.cloudfront.net/AWS.coreMQTT_Agent.5.0.1.pack)
-
-
-## 7. Git submodules
-
-[corePKCS11](https://github.com/FreeRTOS/corePKCS11)
-
-[littlefs](https://github.com/littlefs-project/littlefs)
-
-[tinycbor](https://github.com/intel/tinycbor)
-
-
-## 8. Generate the project using STM32CubeMX
-
-After making changes with STM32CubeMX, be sure to run the **update.sh** script. Failure to do so will result in build errors.
+- `update.sh`

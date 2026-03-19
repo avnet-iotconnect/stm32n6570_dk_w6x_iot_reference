@@ -551,6 +551,33 @@ void vLEDTask( void *pvParameters )
     /* Force initial state publish */
     xEventGroupSetBits( xLedEventGroup, LED_STATUS_CHANGED_EVENT );
 
+    /* -------------------------------------------------------------- */
+    /* Initialize reported LED state from actual hardware pin levels  */
+    /* -------------------------------------------------------------- */
+    for( uint8_t i = 0; i < LED_COUNT; i++ )
+    {
+        const LedHwDescriptor_t *pxLed = &xLEDs[i];
+        GPIO_PinState pinState = HAL_GPIO_ReadPin( pxLed->port, pxLed->pin );
+
+        /* Compare against the LED's ON level */
+        if( pinState == pxLed->onLevel )
+        {
+            led_reported_status[ pxLed->index ] = pdTRUE;
+        }
+        else
+        {
+            led_reported_status[ pxLed->index ] = pdFALSE;
+        }
+
+        /* Keep last_status in sync so the first publish is clean */
+        led_last_status[ pxLed->index ] = led_reported_status[ pxLed->index ];
+    }
+
+    LogInfo( ( "LED initial states: RED=%s, GREEN=%s",
+               led_reported_status[ LED_RED_INDEX ]   ? "ON" : "OFF",
+               led_reported_status[ LED_GREEN_INDEX ] ? "ON" : "OFF" ) );
+
+
     for( ;; )
     {
         uxBits = xEventGroupWaitBits( xLedEventGroup,

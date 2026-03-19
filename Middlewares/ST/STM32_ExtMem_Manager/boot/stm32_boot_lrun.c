@@ -65,7 +65,9 @@ BOOTStatus_TypeDef BOOT_Application(void)
   retr = MapMemory();
   if (BOOT_OK == retr)
   {
-    //retr = CopyApplication();
+#if !defined(_DEBUG_)
+    retr = CopyApplication();
+#endif
     if (BOOT_OK == retr)
     {
       /* Jump on the application */

@@ -7,7 +7,7 @@
   ******************************************************************************
     * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -32,10 +32,9 @@
   */
 typedef enum
 {
-  SECURE_FAULT_CB_ID     = 0x00U, /*!< System secure fault callback ID */
-  GTZC_ERROR_CB_ID       = 0x01U  /*!< GTZC secure error callback ID */
+SECURE_FAULT_CB_ID     = 0x00U, /*!< System secure fault callback ID */
+  IAC_ERROR_CB_ID       = 0x01U  /*!< Illegal access secure error callback ID */
 } SECURE_CallbackIDTypeDef;
-
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

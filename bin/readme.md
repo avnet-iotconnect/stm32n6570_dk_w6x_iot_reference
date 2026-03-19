@@ -1,12 +1,11 @@
-# Bin Quick Start (AWS + Mosquitto + EMQX)
+# Bin Quick Start (AWS + Mosquitto)
 
-This `bin/` flow supports `broker_type: "aws"`, `broker_type: "mosquitto"`, and `broker_type: "emqx"`.
+This `bin/` flow supports `broker_type: "aws"` and `broker_type: "mosquitto"`.
 
 ## Files in `bin/`
 
 - `flash.ps1`: flashes bootloader + selected app binary
 - `provision_mosquitto.ps1`: mosquitto provisioning flow
-- `provision_emqx.ps1`: EMQX provisioning flow
 - `provision_aws_single.ps1`: AWS single-thing provisioning flow
 - `run_all.ps1`: runs flash, then provisioning
 - `config.json`: profile and connection settings
@@ -27,7 +26,7 @@ This `bin/` flow supports `broker_type: "aws"`, `broker_type: "mosquitto"`, and 
 ## Quick Start
 
 1. Open `bin/config.json`
-2. Choose `broker_type` in `config.json` (`mosquitto`, `emqx`, or `aws`).
+2. Choose `broker_type` in `config.json` (`mosquitto` or `aws`).
 3. Run:
 
 ```powershell
@@ -59,13 +58,6 @@ flowchart TD
     G5 --> G6[download the tls_cert]
     G6 --> G7[Import tls_cert + set endpoint/port + Wi-Fi + commit + reset]
 
-    F -->|emqx| J[Run provision_emqx.ps1]
-    J --> J1[Detect COM + open serial]
-    J1 --> J2[Reset basic Wi-Fi config]
-    J2 --> J3[Download + import DigiCert Global Root G2]
-    J3 --> J4[Generate key + self-signed cert on device]
-    J4 --> J5[Set endpoint/port + Wi-Fi + commit + reset]
-
     F -->|aws| H[Run provision_aws_single.ps1]
     H --> H1[Detect COM + open serial]
     H1 --> H2[Reset basic Wi-Fi config]
@@ -77,7 +69,6 @@ flowchart TD
 
 
     G7 --> Z[Done]
-    J5 --> Z
     H7 --> Z
 ```
 
@@ -102,23 +93,7 @@ Notes:
 - It tries to auto-request a client cert from `https://test.mosquitto.org/ssl/`.
 - If auto-request fails, it falls back to manual cert download and asks for cert path.
 
-### Option B: EMQX
-
-Example:
-
-```json
-{
-  "broker_type": "emqx",
-  "wifi_ssid": "YOUR_WIFI",
-  "wifi_credential": "YOUR_PASSWORD"
-}
-```
-
-Notes:
-- `provision_emqx.ps1` downloads DigiCert Global Root G2 CA and imports it as `root_ca_cert`.
-- It generates device key + self-signed device certificate using board CLI (`pki generate key`, `pki generate cert`).
-
-### Option C: AWS
+### Option B: AWS
 
 Example:
 
@@ -154,15 +129,14 @@ Use the main project documentation:
 
 - [Main README](../readme.md)
 - [Mosquitto provisioning guide](../provision_mosquitto.md)
-- [EMQX provisioning guide](../provision_emqx.md)
 - [AWS single-device provisioning guide](../provision_aws_single_script.md)
 
 ## Run and Test Examples After Provisioning
 
 After onboarding is complete, run the application examples from the main project README:
 
-- [Run the Examples](readme.md#run-the-examples)
+- [Run the Examples](../readme.md#run-the-examples)
 
 ---
 
-[Back to Main README](readme.md)
+[Back to Main README](../readme.md)

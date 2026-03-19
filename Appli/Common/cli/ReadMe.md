@@ -1,17 +1,11 @@
 ### Command Line Interface (CLI)
 The CLI interface is used to provision the device. There is a python script to automatically provision the device and register Thing into cloud.
-See [ Getting Started Guide ](../../readme.md)
+See [ Getting Started Guide ](../../../readme.md)
 
 ### Other Unix-like utilities
 The following other utilities are also available in this image:
 
 ```
-w6x_fs 
-    w6x_fs ls
-        List files present on ST67 internal file system
-
-    w6x_fs rm <file_name>
-        Delete a file
 ps
     List the status of all running tasks and related runtime statistics.
 

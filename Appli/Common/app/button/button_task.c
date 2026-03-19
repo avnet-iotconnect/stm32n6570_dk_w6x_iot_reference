@@ -285,6 +285,7 @@ void vButtonTask( void *pvParameters )
     GPIO_EXTI_Register_Rising_Callback( USER_Button_Pin,
                                         user_button_rising_event,
                                         NULL );
+
     GPIO_EXTI_Register_Falling_Callback( USER_Button_Pin,
                                          user_button_falling_event,
                                          NULL );

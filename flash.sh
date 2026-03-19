@@ -2,8 +2,8 @@
 
 APP_NAME="stm32n6570_dk_w6x_iot_reference"
 
-FSBL_BIN_FILE="./FSBL/Debug/${APP_NAME}_FSBL.bin"
-APP_BIN_FILE="./Appli/Single (Create single thing)/${APP_NAME}_Appli.bin"
+FSBL_BIN_FILE="./FSBL/Release/${APP_NAME}_FSBL.bin"
+APP_BIN_FILE="./Appli/Debug/${APP_NAME}_Appli.bin"
 
 #NOR EXTERNAL FLASH Start Address : 0x70000000
 FLASH_FSBL_ADDRESS=0x70000000

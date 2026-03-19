@@ -591,7 +591,7 @@ void mbedtls_platform_free( void * ptr );
  *
  * Uncomment this macro to enable the NULL cipher and ciphersuites
  */
-#define MBEDTLS_CIPHER_NULL_CIPHER
+/* #define MBEDTLS_CIPHER_NULL_CIPHER */
 
 /**
  * \def MBEDTLS_CIPHER_PADDING_PKCS7

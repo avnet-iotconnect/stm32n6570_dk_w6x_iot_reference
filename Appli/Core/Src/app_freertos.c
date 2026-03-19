@@ -87,25 +87,9 @@ static int fs_init(void);
 lfs_t* pxGetDefaultFsCtx(void);
 #endif /* LFS_CONFIG */
 
-
-extern void otaPal_EarlyInit(void);
-
-extern void vSubscribePublishTestTask    ( void * pvParameters );
-extern void vDefenderAgentTask           ( void * pvParameters );
-extern void vShadowDeviceTask            ( void * pvParameters );
-extern void vOTAUpdateTask               ( void * pvParameters );
-extern void vEnvironmentSensorPublishTask( void * pvParameters );
-extern void vMotionSensorsPublish        ( void * pvParameters );
-extern void vSNTPTask                    ( void * pvParameters );
-extern void prvFleetProvisioningTask     ( void * pvParameters );
-extern void vDefenderAgentTask           ( void * pvParameters );
 extern void vLEDTask                     ( void * pvParameters );
 extern void vButtonTask                  ( void * pvParameters );
-extern void vHAConfigPublishTask         ( void * pvParameters );
-extern void vCoverTask                   ( void * pvParameters );
-extern void vRangingSensorTask           ( void * pvParameters );
-extern void vIMUTask                     ( void * pvParameters );
-extern void ping_task                    ( void * pvParameters );
+
 /* USER CODE END FunctionPrototypes */
 
 /* USER CODE BEGIN 5 */
@@ -167,8 +151,8 @@ void MX_FREERTOS_Init(void)
 
   LogInfo("HW Init Complete.");
 
-//  LogInfo("Build Date: %s\n", __DATE__);
-//  LogInfo("Build Time: %s\n", __TIME__);
+  LogInfo("Build Date: %s\n", __DATE__);
+  LogInfo("Build Time: %s\n", __TIME__);
 
   xResult = xTaskCreate(StartDefaultTask, "DefaultTask", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY, NULL);
   configASSERT(xResult == pdTRUE);
@@ -185,15 +169,6 @@ void MX_FREERTOS_Init(void)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN defaultTask */
-#if (DEMO_AWS_OTA || AWS_DEMO_AWS_SHADOW)
-  char * pucMqttEndpoint;
-  size_t uxMqttEndpointLen = -1;
-#endif
-
-#if defined(DEMO_AWS_FLEET_PROVISION) && !defined(__USE_STSAFE__)
-  BaseType_t xSuccess = pdTRUE;
-  uint32_t provisioned = 0;
-#endif
 
 #if defined(LFS_CONFIG)
   int xMountStatus;
@@ -215,21 +190,6 @@ void StartDefaultTask(void *argument)
     (void) xEventGroupSetBits(xSystemEvents, EVT_MASK_FS_READY);
 
     KVStore_init();
-
-#if (DEMO_AWS_OTA || AWS_DEMO_AWS_SHADOW)
-    pucMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT, &uxMqttEndpointLen );
-#endif
-
-#if DEMO_OTA
-    if ((uxMqttEndpointLen>0) && (uxMqttEndpointLen < 0xffffffff))
-    {
-      /* If we are connecting to AWS */
-      if (strstr(pucMqttEndpoint, "amazonaws") != NULL)
-      {
-        otaPal_EarlyInit();
-      }
-    }
-#endif
   }
   else
   {
@@ -271,11 +231,6 @@ void StartDefaultTask(void *argument)
     /* Update the KV Store */
     KVStore_setString(CS_CORE_THING_NAME, democonfigFP_DEMO_ID);
 
-#if defined(DEMO_AWS_FLEET_PROVISION) && !defined(__USE_STSAFE__)
-    KVStore_setUInt32(CS_PROVISIONED, 0);
-    KVStore_setString(CS_CORE_THING_NAME, democonfigFP_DEMO_ID);
-#endif
-
     /* Update the KV Store */
     KVStore_xCommitChanges();
 
@@ -288,51 +243,8 @@ void StartDefaultTask(void *argument)
   xTaskCreate(net_main, "W6xNet", TASK_STACK_SIZE_W6X, NULL, TASK_PRIO_W6X, NULL);
 #endif
 
-#if DEMO_ECHO_SERVER
-  xTaskCreate(vEchoServerTask, "EchoServer", TASK_STACK_SIZE_MQTT_AGENT, NULL, TASK_PRIO_MQTTA_AGENT, NULL);
-#endif
-
-#if DEMO_ECHO_CLIENT
-  xTaskCreate(vEchoClientTask, "EchoClient", TASK_STACK_SIZE_MQTT_AGENT, NULL, TASK_PRIO_MQTTA_AGENT, NULL);
-#endif
-
-#if (DEMO_PING && !defined(ST67W6X_NCP))
-  xTaskCreate(ping_task, "PingTask", TASK_STACK_SIZE_PING, NULL, TASK_PRIO_PING, NULL);
-#endif
-
 #if MQTT_ENABLED
   xTaskCreate(vMQTTAgentTask, "MQTTAgent", TASK_STACK_SIZE_MQTT_AGENT, NULL, TASK_PRIO_MQTTA_AGENT, NULL);
-#endif
-
-#if defined(DEMO_AWS_FLEET_PROVISION) && !defined(__USE_STSAFE__)
-  provisioned = KVStore_getUInt32( CS_PROVISIONED, &( xSuccess ) );
-
-  if(provisioned == 0)
-  {
-    xTaskCreate(prvFleetProvisioningTask, "FleetProv", TASK_STACK_SIZE_fleetProvisioning, NULL, TASK_PRIO_fleetProvisioning, NULL);
-
-    vTaskDelete( NULL);
-  }
-#endif
-
-#if DEMO_PUB_SUB
-  xTaskCreate(vSubscribePublishTestTask, "PubSub", TASK_STACK_SIZE_PUBLISH, NULL, TASK_PRIO_PUBLISH, NULL);
-#endif
-
-#if DEMO_ENV_SENSOR
-  xTaskCreate(vEnvironmentSensorPublishTask, "EnvSense", TASK_STACK_SIZE_ENV, NULL, TASK_PRIO_ENV, NULL);
-#endif
-
-#if DEMO_MOTION_SENSOR
-  xTaskCreate(vMotionSensorsPublish, "MotionS", TASK_STACK_SIZE_MOTION, NULL, TASK_PRIO_MOTION, NULL);
-#endif
-
-#if DEMO_MOTION_IMU
-  xTaskCreate(vIMUTask, "IMU", TASK_STACK_SIZE_MOTION, NULL, TASK_PRIO_MOTION, NULL);
-#endif
-
-#if DEMO_HOME_ASSISTANT
-      xTaskCreate(vHAConfigPublishTask, "HomeAssistant", TASK_STACK_SIZE_HOMEASSISTANT, NULL, TASK_PRIO_HOMEASSISTANT, NULL);
 #endif
 
 #if DEMO_LED
@@ -341,44 +253,6 @@ void StartDefaultTask(void *argument)
 
 #if DEMO_BUTTON
       xTaskCreate(vButtonTask, "ButtonTask", TASK_STACK_SIZE_BUTTON, NULL, TASK_PRIO_BUTTON, NULL);
-#endif
-
-#if DEMO_COVER
-      xTaskCreate(vCoverTask, "CoverTask", TASK_STACK_SIZE_BUTTON, NULL, TASK_PRIO_BUTTON, NULL);
-#endif
-
-#if (DEMO_RANGING_SENSOR || USE_RANGING_SENSOR)
-      xTaskCreate(vRangingSensorTask, "RangingTask", TASK_STACK_SIZE_RANGING, NULL, TASK_PRIO_RANGING, NULL);
-#endif
-
-#if (DEMO_AWS_OTA || AWS_DEMO_AWS_SHADOW)
-  if ((uxMqttEndpointLen>0) && (uxMqttEndpointLen < 0xffffffff))
-  {
-    /* If we are connecting to AWS */
-    if (strstr(pucMqttEndpoint, "amazonaws") != NULL)
-    {
-#if DEMO_AWS_OTA
-      xTaskCreate(vOTAUpdateTask, "OTAUpdate", TASK_STACK_SIZE_OTA, NULL, TASK_PRIO_OTA, NULL);
-#endif
-
-#if DEMO_AWS_SHADOW
-      xTaskCreate(vShadowDeviceTask, "ShadowDevice", TASK_STACK_SIZE_SHADOW, NULL, TASK_PRIO_SHADOW, NULL);
-#endif
-
-#if DEMO_AWS_DEFENDER && !defined(ST67W6X_NCP)
-      xTaskCreate(vDefenderAgentTask, "AWSDefender", TASK_STACK_SIZE_DEFENDER, NULL, TASK_PRIO_DEFENDER, NULL);
-#endif
-    }
-  }
-
-  if(pucMqttEndpoint != NULL)
-  {
-    vPortFree(pucMqttEndpoint);
-  }
-#endif
-
-#if DEMO_SNTP
-  xTaskCreate(vSNTPTask, "vSNTPTask", TASK_STACK_SIZE_SNTP, NULL, TASK_PRIO_SNTP, NULL);
 #endif
 
   /* Infinite loop */
