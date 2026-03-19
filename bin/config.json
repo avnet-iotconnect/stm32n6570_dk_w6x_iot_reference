@@ -1,0 +1,5 @@
+{
+  "broker_type": "mosquitto",
+  "wifi_ssid": "Your_WiFi_SSID",
+  "wifi_credential": "Your_WiFi_Credential"
+}
