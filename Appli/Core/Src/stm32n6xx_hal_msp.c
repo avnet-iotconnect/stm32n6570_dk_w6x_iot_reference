@@ -77,6 +77,8 @@ void HAL_MspInit(void)
   HAL_NVIC_SetPriority(IWDG_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(IWDG_IRQn);
 
+  HAL_PWREx_EnableVddIO2();
+
   HAL_PWREx_EnableVddIO3();
 
   HAL_PWREx_EnableVddIO4();

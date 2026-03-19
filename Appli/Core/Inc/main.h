@@ -96,9 +96,6 @@ void Error_Handler(void);
 #define ARD_D05_GPIO_Port GPIOE
 #define ARD_D12_Pin GPIO_PIN_8
 #define ARD_D12_GPIO_Port GPIOH
-#define USER_BUTTON_Pin GPIO_PIN_13
-#define USER_BUTTON_GPIO_Port GPIOC
-#define USER_BUTTON_EXTI_IRQn EXTI13_IRQn
 #define ARD_D15_Pin GPIO_PIN_9
 #define ARD_D15_GPIO_Port GPIOH
 #define ARD_D07_Pin GPIO_PIN_6
@@ -107,12 +104,15 @@ void Error_Handler(void);
 #define ARD_D02_GPIO_Port GPIOD
 #define ARD_D01_Pin GPIO_PIN_5
 #define ARD_D01_GPIO_Port GPIOD
+#define USER_BUTTON_Pin GPIO_PIN_13
+#define USER_BUTTON_GPIO_Port GPIOC
+#define USER_BUTTON_EXTI_IRQn EXTI13_IRQn
 #define ARD_D04_Pin GPIO_PIN_5
 #define ARD_D04_GPIO_Port GPIOH
-#define ARD_D00_Pin GPIO_PIN_6
-#define ARD_D00_GPIO_Port GPIOF
 #define LED_GREEN_Pin GPIO_PIN_1
 #define LED_GREEN_GPIO_Port GPIOO
+#define ARD_D00_Pin GPIO_PIN_6
+#define ARD_D00_GPIO_Port GPIOF
 #define ARD_D10_Pin GPIO_PIN_3
 #define ARD_D10_GPIO_Port GPIOA
 #define LED_RED_Pin GPIO_PIN_10
