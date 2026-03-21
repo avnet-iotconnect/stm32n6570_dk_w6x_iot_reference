@@ -39,5 +39,5 @@ flowchart TD
     A --> C[KVS]
     B --> D[Storage Backend]
     C --> D
-    D --> E[Internal Flash]
+    D --> E[External Flash]
 ```
