@@ -71,6 +71,7 @@ flowchart TD
 | Architecture and middleware | [docs/architecture.md](docs/architecture.md) |
 | Software components | [docs/software_components.md](docs/software_components.md) |
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
+| Scripted flash/provision flow | [bin/readme.md](bin/readme.md) |
 | MQTT topic/data model | [docs/mqtt_data_model.md](docs/mqtt_data_model.md) |
 | AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
 | Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |

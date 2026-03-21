@@ -76,3 +76,9 @@ When opening the `.ioc`, STM32CubeMX may request additional packs. Accept and in
    - `flash.ps1`
 5. Set the board to **Flash boot mode**.
 6. Power-cycle again.
+
+## Certificate and Runtime Configuration Storage
+
+- Device certificates and runtime configuration (Wi-Fi settings, MQTT endpoint, MQTT port) are stored in an external flash section that is separate from the main application image.
+- Certificates and configuration are accessed through PKCS#11 and KVS, using the littlefs (LFS) stack.
+- Reflashing firmware does not erase or modify these stored certificates/configuration; they remain persistent in external flash.
