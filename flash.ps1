@@ -1,14 +1,18 @@
 $ErrorActionPreference = "Stop"
 
 $APP_NAME = "stm32n6570_dk_w6x_iot_reference"
-# $BUIL_CONFIG="Debug"
-$BUIL_CONFIG="HW_Crypto"
 
-$FSBL_BIN_FILE = ".\FSBL\Release\${APP_NAME}_FSBL.bin"
-$APP_BIN_FILE = ".\Appli\${BUIL_CONFIG}\${APP_NAME}_Appli.bin"
+# $FSBL_BUIL_CONFIG="Debug"
+$FSBL_BUIL_CONFIG="Release"
 
-Write-Information "Using FSBL binary: $FSBL_BIN_FILE"
-Write-Information "Using Appli binary: $APP_BIN_FILE"
+# $APPLI_BUIL_CONFIG="SW_Crypto"
+$APPLI_BUIL_CONFIG="HW_Crypto"
+
+$FSBL_BIN_FILE = ".\FSBL\${FSBL_BUIL_CONFIG}\${APP_NAME}_FSBL.bin"
+$APP_BIN_FILE = ".\Appli\${APPLI_BUIL_CONFIG}\${APP_NAME}_Appli.bin"
+
+Write-Output "Using FSBL binary: $FSBL_BIN_FILE"
+Write-Output "Using Appli binary: $APP_BIN_FILE"
 
 # Delay for 2 seconds to allow user to review the selected binaries before proceeding with flashing
 Start-Sleep -Seconds 2

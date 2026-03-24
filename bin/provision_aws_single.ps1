@@ -52,7 +52,7 @@ function Assert-SerialPortAvailable {
 }
 
 # Root CA download settings
-$defaultAwsRootCaUrl = "https://www.amazontrust.com/repository/SFC2CA-SFSRootCAG2.pem"
+$defaultAwsRootCaUrl = "https://www.amazontrust.com/repository/AmazonRootCA1.pem"
 $awsRootCaUrl = $defaultAwsRootCaUrl
 $awsRootCaPath = Join-Path $scriptDir "SFSRootCAG2.pem"
 $awsMqttPort = 8883

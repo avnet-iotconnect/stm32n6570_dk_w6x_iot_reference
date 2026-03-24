@@ -132,6 +132,43 @@ __weak unsigned long getRunTimeCounterValue(void)
 {
   return 0;
 }
+
+static void checkAndClearResetFlags(void)
+{
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)
+  {
+    LogInfo("Reset source: PIN");
+  }
+
+  if ((__HAL_RCC_GET_FLAG(RCC_FLAG_BORRST) != RESET) ||
+      (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST) != RESET))
+  {
+    LogInfo("Reset source: BOR or POR/PDR");
+  }
+
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)
+  {
+    LogInfo("Reset source: Software");
+  }
+
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET)
+  {
+    LogInfo("Reset source: IWDG");
+  }
+
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST) != RESET)
+  {
+    LogInfo("Reset source: WWDG");
+  }
+
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST) != RESET)
+  {
+    LogInfo("Reset source: Low power");
+  }
+
+  /* Clear all reset flags */
+  __HAL_RCC_CLEAR_RESET_FLAGS();
+}
 /* USER CODE END 1 */
 
 /**
@@ -150,6 +187,7 @@ void MX_FREERTOS_Init(void)
   vLoggingInit();
 
   LogInfo("HW Init Complete.");
+  checkAndClearResetFlags();
 
   LogInfo("Build Date: %s\n", __DATE__);
   LogInfo("Build Time: %s\n", __TIME__);
@@ -158,6 +196,10 @@ void MX_FREERTOS_Init(void)
   LogInfo("HW Crypto enabled");
 #else
   LogInfo("Software Crypto");
+#endif
+
+#if defined(HAL_IWDG_MODULE_ENABLED)
+  LogInfo("IWDG Enabled");
 #endif
 
   xResult = xTaskCreate(StartDefaultTask, "DefaultTask", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY, NULL);

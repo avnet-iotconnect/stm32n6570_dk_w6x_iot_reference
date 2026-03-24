@@ -54,7 +54,7 @@ extern "C" {
 /*#define HAL_I3C_MODULE_ENABLED   */
 /*#define HAL_ICACHE_MODULE_ENABLED   */
 /*#define HAL_IRDA_MODULE_ENABLED   */
-//#define HAL_IWDG_MODULE_ENABLED
+#define HAL_IWDG_MODULE_ENABLED
 /*#define HAL_JPEG_MODULE_ENABLED   */
 /*#define HAL_LPTIM_MODULE_ENABLED   */
 /*#define HAL_LTDC_MODULE_ENABLED   */
@@ -185,6 +185,7 @@ extern "C" {
 #define  USE_HAL_GFXMMU_REGISTER_CALLBACKS    0U /* GFXMMU register callback disabled    */
 #define  USE_HAL_GFXTIM_REGISTER_CALLBACKS    0U /* GFXTIM register callback disabled    */
 #define  USE_HAL_HASH_REGISTER_CALLBACKS      0U /* HASH register callback disabled      */
+#define  USE_HAL_HASH_SUSPEND_RESUME          1U /* HASH suspend/resume enabled          */
 #define  USE_HAL_HCD_REGISTER_CALLBACKS       0U /* HCD register callback disabled       */
 #define  USE_HAL_I2C_REGISTER_CALLBACKS       0U /* I2C register callback disabled       */
 #define  USE_HAL_I2S_REGISTER_CALLBACKS       0U /* I2S register callback disabled       */

@@ -1,5 +1,6 @@
 Appli/Debug/
 Appli/HW_Crypto/
+Appli/SW_Crypto/
 FSBL/Debug/
 FSBL/Release/
 ExtMemLoader/Debug
@@ -7,3 +8,5 @@ bin/*.bin
 bin/log.txt
 bin/*.crt
 bin/*.pem
+Appli-trusted.bin
+FSBL-trusted.bin
