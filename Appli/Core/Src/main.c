@@ -241,10 +241,10 @@ static void MX_IWDG_Init(void)
 
   /* USER CODE END IWDG_Init 1 */
   hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_128;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
   hiwdg.Init.Window = 4095;
   hiwdg.Init.Reload = 4095;
-  hiwdg.Init.EWI = 0;
+  hiwdg.Init.EWI = 10;
   if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {
     Error_Handler();
@@ -814,8 +814,6 @@ static void MX_XSPI2_Deinit(void)
   /* USER CODE BEGIN XSPI2_Init 0 */
 
   /* USER CODE END XSPI2_Init 0 */
-
-  XSPIM_CfgTypeDef sXspiManagerCfg = {0};
 
   /* USER CODE BEGIN XSPI2_Init 1 */
 

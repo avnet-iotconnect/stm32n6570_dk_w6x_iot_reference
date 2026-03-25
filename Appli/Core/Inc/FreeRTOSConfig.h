@@ -184,7 +184,6 @@ header file. */
             LogAssert( "Assertion failed." );           \
             vDyingGasp();                               \
             while( 1 ) {                                \
-              __BKPT(0);                                \
             }                                           \
         }                                               \
     } while( 0 )

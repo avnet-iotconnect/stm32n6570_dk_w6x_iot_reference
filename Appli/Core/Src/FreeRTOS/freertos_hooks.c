@@ -178,8 +178,26 @@ void HAL_Delay(uint32_t Delay)
 #if defined(HAL_IWDG_MODULE_ENABLED)
 void HAL_IWDG_EarlyWakeupCallback(IWDG_HandleTypeDef *hiwdg)
 {
-  LogWarn("IWDG EarlyWakeup");
+    /* Determine which stack pointer was active */
+    uint32_t *stack;
 
-  configASSERT(0);
+    if ((SCB->ICSR & SCB_ICSR_RETTOBASE_Msk) == 0)
+    {
+        /* Nested interrupt → use MSP */
+        stack = (uint32_t *) __get_MSP();
+    }
+    else
+    {
+        /* Thread mode → use PSP */
+        stack = (uint32_t *) __get_PSP();
+    }
+
+    uint32_t fault_pc = stack[6];   /* stacked PC */
+
+    LogSys("IWDG EarlyWakeup! PC=0x%08lx", fault_pc);
+
+    vDyingGasp();
+    while(1);
 }
 #endif
+
