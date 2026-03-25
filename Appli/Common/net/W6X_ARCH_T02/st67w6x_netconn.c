@@ -62,7 +62,18 @@
 
 /* Private defines -----------------------------------------------------------*/
 /* Application events */
+#define EVT_APP_WIFI_CONNECTED      (1 << 0)
+#define EVT_APP_WIFI_DISCONNECTED   (1 << 1)
+#define EVT_APP_WIFI_GOT_IP         (1 << 2)
+#define EVT_APP_RECONNECT_REQUEST   (1 << 3)
+#define EVT_APP_ALL_BIT             (EVT_APP_WIFI_CONNECTED | \
+                                     EVT_APP_WIFI_DISCONNECTED | \
+                                     EVT_APP_WIFI_GOT_IP | \
+                                     EVT_APP_RECONNECT_REQUEST)
 
+/* Network connection timeouts (milliseconds) */
+#define NET_IP_WAIT_TIMEOUT         pdMS_TO_TICKS(30 * 1000)   /* 30 seconds */
+#define NET_RETRY_BACKOFF           pdMS_TO_TICKS(5 * 1000)    /* 5 seconds */
 
 /* USER CODE BEGIN PD */
 
@@ -74,6 +85,14 @@
 
 /* USER CODE END PM */
 
+/* Network state machine enumeration */
+typedef enum {
+    W6X_NET_STATE_NONE = 0,        /**< No connection, initial state */
+    W6X_NET_STATE_STA_DOWN,        /**< Station offline */
+    W6X_NET_STATE_STA_UP,          /**< Station connected to AP */
+    W6X_NET_STATE_STA_GOT_IP       /**< Station obtained IP address */
+} W6xNetStatus_t;
+
 /* Private variables ---------------------------------------------------------*/
 /** BLE data buffer to receive message from the ST67W6X Driver */
 static uint8_t a_APP_AvailableData[247] = {0};
@@ -82,6 +101,12 @@ static uint8_t a_APP_AvailableData[247] = {0};
 extern EventGroupHandle_t xSystemEvents;
 EventGroupHandle_t app_evt_current = NULL;
 
+/** Network task handle - used for external reconnect requests */
+static TaskHandle_t xNetTaskHandle = NULL;
+
+/** Current and previous network state for state machine tracking */
+static W6xNetStatus_t current_status = W6X_NET_STATE_NONE;
+static W6xNetStatus_t previous_status = W6X_NET_STATE_NONE;
 
 /* USER CODE BEGIN PV */
 
@@ -152,7 +177,66 @@ int32_t APP_shell_quit(int32_t argc, char **argv);
 
 /* USER CODE END PFP */
 
-/* Functions Definition ------------------------------------------------------*/
+/* Helper Functions ----------------------------------------------------------*/
+
+/**
+  * @brief  Convert network state to string for logging
+  * @param  status: Network state
+  * @return String representation of the state
+  */
+static const char* net_status_to_string(W6xNetStatus_t status)
+{
+  switch(status)
+  {
+    case W6X_NET_STATE_NONE:
+      return "None";
+    case W6X_NET_STATE_STA_DOWN:
+      return "Station Down";
+    case W6X_NET_STATE_STA_UP:
+      return "Station Up (no IP)";
+    case W6X_NET_STATE_STA_GOT_IP:
+      return "Station Got IP";
+    default:
+      return "Unknown";
+  }
+}
+
+/**
+  * @brief  Update network state and log transition
+  * @param  new_status: New network state
+  */
+static void net_update_status(W6xNetStatus_t new_status)
+{
+  previous_status = current_status;
+  current_status = new_status;
+
+  if(previous_status != current_status)
+  {
+    LogDebug("Network status: %s -> %s\n",
+            net_status_to_string(previous_status),
+            net_status_to_string(current_status));
+  }
+}
+
+/**
+  * @brief  Request network reconnection from external task
+  * @return pdTRUE on success, pdFALSE if net_main is not running
+  * @note   This API allows other tasks (e.g., MQTT) to trigger Wi-Fi reconnection
+  *         Example: net_request_reconnect() when MQTT connection fails
+  */
+BaseType_t net_request_reconnect(void)
+{
+  BaseType_t xReturn = pdFALSE;
+
+  LogDebug("External reconnection request\n");
+
+  if(xNetTaskHandle != NULL)
+  {
+    xReturn = xEventGroupSetBits(app_evt_current, EVT_APP_RECONNECT_REQUEST);
+  }
+
+  return xReturn;
+}
 void net_main(void *argument)
 {
   W6X_Status_t ret = 0;
@@ -160,8 +244,15 @@ void net_main(void *argument)
   W6X_WiFi_Connect_t connectData = {0};
   W6X_WiFi_StaStateType_e state = W6X_WIFI_STATE_STA_OFF;
   W6X_WiFi_Connect_Opts_t connect_opts = {0};
+  uint8_t mac_addr[6] = {0};
+  uint32_t connect_attempts = 0;
+  const uint32_t MAX_CONNECT_ATTEMPTS = 3;
 
   argument = argument;
+
+  /* Store this task's handle for external reconnection requests */
+  xNetTaskHandle = xTaskGetCurrentTaskHandle();
+  LogDebug("Network task started (handle=%p)\n", xNetTaskHandle);
 
   app_evt_current = xEventGroupCreate();
 
@@ -223,17 +314,43 @@ void net_main(void *argument)
     }
   }
 
+  /* Query and log MAC address */
+  if(W6X_STATUS_OK == ret)
+  {
+    if(W6X_WiFi_Station_GetMACAddress(mac_addr) == W6X_STATUS_OK)
+    {
+      LogInfo("Wi-Fi MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+             mac_addr[0], mac_addr[1], mac_addr[2],
+             mac_addr[3], mac_addr[4], mac_addr[5]);
+    }
+    else
+    {
+      LogWarn("Failed to query MAC address\n");
+    }
+  }
+
   if(W6X_STATUS_OK == ret)
   {
     ret = W6X_WiFi_Connect(&connect_opts);
+    connect_attempts = 1;
   }
+
+  /* Initialize state machine */
+  net_update_status(W6X_NET_STATE_STA_DOWN);
 
   while(W6X_STATUS_OK == ret)
   {
-    eventBits = xEventGroupWaitBits(app_evt_current, EVT_APP_ALL_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+    /* Wait for events with timeout instead of indefinite wait */
+    eventBits = xEventGroupWaitBits(app_evt_current,
+                                    EVT_APP_ALL_BIT,
+                                    pdTRUE,           /* Auto-clear events */
+                                    pdFALSE,          /* OR logic (any bit) */
+                                    NET_IP_WAIT_TIMEOUT);
 
     if (eventBits & EVT_APP_WIFI_CONNECTED)
     {
+      net_update_status(W6X_NET_STATE_STA_UP);
+
       uint32_t ps_mode = 0;
       if ((W6X_GetPowerMode(&ps_mode) != W6X_STATUS_OK) || (W6X_SetPowerMode(ps_mode) != W6X_STATUS_OK))
       {
@@ -247,23 +364,64 @@ void net_main(void *argument)
         continue;
       }
 
-      LogInfo("Connected to following Access Point :\n");
+      LogInfo("Connected to following Access Point:\n");
       LogInfo("[" MACSTR "] Channel: %" PRIu32 " | RSSI: %" PRIi32 " | SSID: %s\n",
               MAC2STR(connectData.MAC),
               connectData.Channel,
               connectData.Rssi,
               connectData.SSID);
+
+      connect_attempts = 0;  /* Reset retry counter on successful connection */
     }
 
     if (eventBits & EVT_APP_WIFI_DISCONNECTED)
     {
-    	LogInfo("Station disconnected from Access Point\n");
-    	xEventGroupSetBits(xSystemEvents, EVT_MASK_NET_DISCONNECTED);
+      net_update_status(W6X_NET_STATE_STA_DOWN);
+      LogInfo("Station disconnected from Access Point\n");
+      xEventGroupSetBits(xSystemEvents, EVT_MASK_NET_DISCONNECTED);
+
+      /* If disconnected unexpectedly, schedule automatic retry */
+      if(connect_attempts > 0 && connect_attempts < MAX_CONNECT_ATTEMPTS)
+      {
+        LogInfo("Automatic reconnection attempt %u/%u\n", connect_attempts + 1, MAX_CONNECT_ATTEMPTS);
+        vTaskDelay(NET_RETRY_BACKOFF);
+        W6X_WiFi_Connect(&connect_opts);
+        connect_attempts++;
+      }
     }
 
     if (eventBits & EVT_APP_WIFI_GOT_IP)
     {
+      net_update_status(W6X_NET_STATE_STA_GOT_IP);
       xEventGroupSetBits(xSystemEvents, EVT_MASK_NET_CONNECTED);
+    }
+
+    if (eventBits & EVT_APP_RECONNECT_REQUEST)
+    {
+      /* External reconnection request (e.g., from MQTT agent) */
+      LogInfo("External reconnection requested - attempting reconnect\n");
+
+      if(current_status != W6X_NET_STATE_STA_GOT_IP)
+      {
+        LogInfo("Initiating Wi-Fi reconnection\n");
+        vTaskDelay(NET_RETRY_BACKOFF);
+        ret = W6X_WiFi_Connect(&connect_opts);
+        connect_attempts = 1;
+      }
+      else
+      {
+        LogWarn("Already connected, ignoring reconnect request\n");
+      }
+    }
+
+    /* Handle event timeout - no events received within the timeout period */
+    if(eventBits == 0)
+    {
+      /* Periodic status check on timeout */
+      if(W6X_WiFi_Station_GetState(&state, &connectData) == W6X_STATUS_OK)
+      {
+        LogDebug("Status check: state=%d\n", state);
+      }
     }
   }
 
@@ -275,6 +433,7 @@ void net_main(void *argument)
 
   LogInfo("##### Application end\n");
 
+  xNetTaskHandle = NULL;  /* Clear handle when task exits */
   vTaskDelete(NULL);
 }
 #if 0
@@ -351,15 +510,17 @@ static void APP_wifi_cb(W6X_event_id_t event_id, void *event_args)
   switch (event_id)
   {
     case W6X_WIFI_EVT_CONNECTED_ID:
+      LogDebug("WiFi event: Connected\n");
       APP_setevent(&app_evt_current, EVT_APP_WIFI_CONNECTED);
       break;
 
     case W6X_WIFI_EVT_DISCONNECTED_ID:
+      LogDebug("WiFi event: Disconnected\n");
       APP_setevent(&app_evt_current, EVT_APP_WIFI_DISCONNECTED);
       break;
 
     case W6X_WIFI_EVT_REASON_ID:
-      LogInfo("Reason: %s\n", W6X_WiFi_ReasonToStr(event_args));
+      LogInfo("Disconnection reason: %s\n", W6X_WiFi_ReasonToStr(event_args));
       break;
 
     case W6X_WIFI_EVT_DIST_STA_IP_ID:
@@ -367,12 +528,12 @@ static void APP_wifi_cb(W6X_event_id_t event_id, void *event_args)
 
     case W6X_WIFI_EVT_STA_CONNECTED_ID:
       cb_data = (W6X_WiFi_CbParamData_t *)event_args;
-      LogInfo("Station connected to soft-AP : [" MACSTR "]\n", MAC2STR(cb_data->MAC));
+      LogInfo("Station connected to soft-AP: [" MACSTR "]\n", MAC2STR(cb_data->MAC));
       break;
 
     case W6X_WIFI_EVT_STA_DISCONNECTED_ID:
       cb_data = (W6X_WiFi_CbParamData_t *)event_args;
-      LogInfo("Station disconnected from soft-AP : [" MACSTR "]\n", MAC2STR(cb_data->MAC));
+      LogInfo("Station disconnected from soft-AP: [" MACSTR "]\n", MAC2STR(cb_data->MAC));
       break;
 
     default:
@@ -588,7 +749,8 @@ static void APP_error_cb(W6X_Status_t ret_w6x, char const *func_name)
   /* USER CODE BEGIN APP_error_cb_1 */
 
   /* USER CODE END APP_error_cb_1 */
-  LogError("[%s] in %s API\n", W6X_StatusToStr(ret_w6x), func_name);
+  LogError("W6X Error in [%s]: %s (code=%" PRIi32 ")\n",
+           func_name, W6X_StatusToStr(ret_w6x), ret_w6x);
   /* USER CODE BEGIN APP_error_cb_2 */
 
   /* USER CODE END APP_error_cb_2 */

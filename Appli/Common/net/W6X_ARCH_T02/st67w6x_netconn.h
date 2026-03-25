@@ -29,6 +29,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
+#include "FreeRTOS.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -60,6 +61,13 @@ extern "C" {
   * @brief  Main application
   */
 void net_main(void *argument);
+
+/**
+  * @brief  Request network reconnection
+  * @return pdTRUE on success, pdFALSE if net_main is not running
+  * @note   Can be called from any task (e.g., MQTT agent on connection failure)
+  */
+BaseType_t net_request_reconnect(void);
 
 /* USER CODE BEGIN EF */
 
