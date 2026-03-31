@@ -88,8 +88,8 @@ MEMORY
 }
 ```
 
-- **ROM**: Specifies where the application image is located in system RAM
-- **RAM**: Specifies where the application executes in system RAM
+- **ROM**: Specifies where the application code and initialized data execute in system RAM
+- **RAM**: Specifies where runtime variables, stack, and heap are located in system RAM
 
 The linker script ensures:
 - Code and initialized data sections are placed in ROM (will be copied to RAM by FSBL)
