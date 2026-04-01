@@ -79,6 +79,47 @@ When opening the `.ioc`, STM32CubeMX may request additional packs. Accept and in
 
 ## Certificate and Runtime Configuration Storage
 
-- Device certificates and runtime configuration (Wi-Fi settings, MQTT endpoint, MQTT port) are stored in an external flash section that is separate from the main application image.
+- Device certificates and runtime configuration (Wi-Fi settings, MQTT endpoint, MQTT port) are stored in an external flash section that is separate from the main application image. For more details, please refer to [memory_layout.md](memory_layout.md)
 - Certificates and configuration are accessed through PKCS#11 and KVS, using the littlefs (LFS) stack.
 - Reflashing firmware does not erase or modify these stored certificates/configuration; they remain persistent in external flash.
+
+## lwIP and MbedTLS Debug
+
+### Enable lwIP debug
+
+In [lwipopts_freertos.h](C:\Users\stred\OneDrive\Documents\Projects\stm32n6570_dk_w6x_iot_reference\Appli\Common\net\lwip_port\include\lwipopts_freertos.h), uncomment the needed debug macros:
+
+```c
+/*#define LWIP_DEBUG                    LWIP_DBG_ON */
+/*#define UDP_DEBUG                     LWIP_DBG_ON */
+/*#define SOCKETS_DEBUG                 LWIP_DBG_ON */
+/*#define TCP_DEBUG                     LWIP_DBG_ON */
+/*#define NETIF_DEBUG                   LWIP_DBG_ON */
+/*#define ETHARP_DEBUG                  LWIP_DBG_ON */
+/*#define DHCP_DEBUG                    LWIP_DBG_ON */
+/*#define IP_DEBUG                      LWIP_DBG_ON */
+/*#define ICMP_DEBUG                    LWIP_DBG_ON */
+/*#define RAW_DEBUG                     LWIP_DBG_ON */
+/*#define DNS_DEBUG                     LWIP_DBG_ON */
+```
+
+### Configure MbedTLS debug
+
+In [main.h](C:\Users\stred\OneDrive\Documents\Projects\stm32n6570_dk_w6x_iot_reference\Appli\Core\Inc\main.h), use:
+
+```c
+/**************** MbedTLS debug config ****************/
+#define MBEDTLS_DEBUG_NO_DEBUG                  0
+#define MBEDTLS_DEBUG_ERROR                     1
+#define MBEDTLS_DEBUG_CHANGE                    2
+#define MBEDTLS_DEBUG_INFO                      3
+#define MBEDTLS_DEBUG_VERBOSE                   4
+
+#define MBEDTLS_DEBUG_THRESHOLD                 MBEDTLS_DEBUG_ERROR
+```
+
+`MBEDTLS_DEBUG_THRESHOLD` is used during TLS setup and handshake.
+
+### Runtime reset after MQTT connection
+
+After MQTT connection is established, debug level is reset to `MBEDTLS_DEBUG_ERROR` in `vSleepUntilMQTTAgentConnected()` in [mqtt_agent_task.c](C:\Users\stred\OneDrive\Documents\Projects\stm32n6570_dk_w6x_iot_reference\Appli\Common\app\mqtt\mqtt_agent_task.c).

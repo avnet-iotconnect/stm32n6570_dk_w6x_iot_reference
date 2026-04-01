@@ -19,9 +19,13 @@ For technical details on this boot model, see the ST community guide: [How to cr
 | **LittleFS** | `0x70400000`¹ | Remaining | File system for PKCS#11/KVS storage |
 
 ¹ **LFS Start Address Calculation**:
+- `MX66LM_RESERVED_BLOCKS =  64`
+- `MX66LM_BLOCK_SZ = ( 64 * 1024 )`
 - `XPI_START_ADDRESS = MX66LM_RESERVED_BLOCKS × MX66LM_BLOCK_SZ`
 - `XPI_START_ADDRESS = 64 × 65536 = 0x400000`
 - `LFS Base = 0x70000000 + 0x400000 = 0x70400000`
+
+In this example, 64 blocks are reserved for the FSBL and the Appli. The space reserved is controlled using the `MX66LM_RESERVED_BLOCKS` defined in [xspi_nor_mx66uw1g45g.h](../Appli/Libraries/fs/xspi_nor_mx66uw1g45g.h)
 
 **Total External Flash**: 512 Mbit (64 MB) organized as:
 - 1024 blocks of 64 KB each
