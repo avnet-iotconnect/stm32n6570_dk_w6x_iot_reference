@@ -44,17 +44,18 @@ LwIP behavior is configured in:
 
 Integration sources:
 
-- `Appli/Common/net/lwip_port/lwip.c`
+- `Appli/Common/net/W6X_ARCH_T02/lwip.c`
+- `Appli/Common/net/W6X_ARCH_T02/lwip_netif.c`
 - `Appli/Common/net/lwip_port/lwip_freertos.c`
-- `Appli/Common/net/lwip_port/lwip_netif.c`
 
 ## mbedTLS Configuration
 
 TLS/crypto integration spans:
 
-- `Appli/Common/config/mbedtls_config.h`
+- `Appli/core/inc/mbedtls_config_hw.h`
+- `Appli/core/inc/mbedtls_config_ntz.h`
 - `Appli/Common/crypto/mbedtls_freertos_port.c`
-- `Appli/Common/crypto/mbedtls_transport.c`
+- `Appli/Common/net/lwip_port/mbedtls_transport.c`
 - `Appli/Core/Src/corePKCS11/core_pkcs11_mbedtls.c`
 
 ## Security and RTOS Glue in `Appli/Core/Src`
