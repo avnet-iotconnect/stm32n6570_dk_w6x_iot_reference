@@ -10,7 +10,7 @@
  *          STM32N6570 PKA peripheral.
  *
  *          Implements:
- *            - mbedtls_internal_ecp_normalize_jac()  via HAL_PKA_ECCProjective2Affine
+ *            - mbedtls_internal_ecp_normalize_jac()  via software modular arithmetic
  *            - mbedtls_internal_ecp_double_jac()     via HAL_PKA_ECCCompleteAddition (P+P)
  *            - mbedtls_internal_ecp_add_mixed()      via HAL_PKA_ECCCompleteAddition
  *
@@ -125,12 +125,13 @@ static int ec_group_to_hw_p256(const mbedtls_ecp_group *grp,
                                      uint8_t b[EC_P256_BYTES])
 {
   int ret;
-  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->P, p, EC_P256_BYTES ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->P,  p,  EC_P256_BYTES ));
   MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->G.X, gx, EC_P256_BYTES ));
   MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->G.Y, gy, EC_P256_BYTES ));
-  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->N, n, EC_P256_BYTES ));
-  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->B, b, EC_P256_BYTES ));
-  cleanup: return ret;
+  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->N,  n,  EC_P256_BYTES ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary( &grp->B,  b,  EC_P256_BYTES ));
+cleanup:
+  return ret;
 }
 
 /* =========================================================================
@@ -163,17 +164,9 @@ void mbedtls_internal_ecp_free(const mbedtls_ecp_group *grp)
 /* =========================================================================
  * mbedtls_internal_ecp_normalize_jac
  *
- * Convert Jacobian (X:Y:Z) to affine (X/Z^2 : Y/Z^3 : 1) using the PKA's
- * HAL_PKA_ECCProjective2Affine operation.
- *
- * PKA API (stm32n6xx_hal_pka.h):
- *   HAL_StatusTypeDef HAL_PKA_ECCProjective2Affine(
- *       PKA_HandleTypeDef *hpka,
- *       PKA_ECCProjective2AffineInTypeDef *in,
- *       uint32_t Timeout);
- *   void HAL_PKA_ECCProjective2Affine_GetResult(
- *       PKA_HandleTypeDef *hpka,
- *       PKA_ECCProjective2AffineOutTypeDef *out);
+ * Convert Jacobian (X:Y:Z) to affine (X/Z^2 : Y/Z^3 : 1).
+ * This implementation uses mbedTLS software modular arithmetic for
+ * correctness and deterministic behavior.
  *
  * Error handling strategy:
  *  1. NULL guard at entry — no heap allocated yet; plain return.
@@ -190,25 +183,10 @@ void mbedtls_internal_ecp_free(const mbedtls_ecp_group *grp)
 int mbedtls_internal_ecp_normalize_jac(const mbedtls_ecp_group *grp, mbedtls_ecp_point *pt)
 {
   int ret = 0;
-
-  /* Stack-allocated serialisation buffers (no heap risk here). */
-  uint8_t p_buf [EC_P256_BYTES];
-  uint8_t gx_buf[EC_P256_BYTES]; /* needed by ec_group_to_hw_p256, unused by PKA op */
-  uint8_t gy_buf[EC_P256_BYTES];
-  uint8_t n_buf [EC_P256_BYTES];
-  uint8_t b_buf [EC_P256_BYTES];
-  uint8_t px_buf[EC_P256_BYTES];
-  uint8_t py_buf[EC_P256_BYTES];
-  uint8_t pz_buf[EC_P256_BYTES];
-
-  /* Heap-allocated output buffers; initialised to NULL for safe cleanup. */
-  uint8_t *out_x = NULL;
-  uint8_t *out_y = NULL;
-  uint32_t montgomery_param[EC_P256_BYTES / 4U];
-
-  PKA_MontgomeryParamInTypeDef       mont_in = { 0 };
-  PKA_ECCProjective2AffineInTypeDef  in      = { 0 };
-  PKA_ECCProjective2AffineOutTypeDef out     = { 0 };
+  mbedtls_mpi Zi, ZZ, ZZZ;
+  mbedtls_mpi_init(&Zi);
+  mbedtls_mpi_init(&ZZ);
+  mbedtls_mpi_init(&ZZZ);
 
   /* --- Guard --------------------------------------------------------*/
   if (grp == NULL || pt == NULL)
@@ -222,66 +200,32 @@ int mbedtls_internal_ecp_normalize_jac(const mbedtls_ecp_group *grp, mbedtls_ecp
     return 0;
   }
 
-  /* --- Serialise ----------------------------------------------------*/
-  MBEDTLS_MPI_CHK(ec_group_to_hw_p256(grp, p_buf, gx_buf, gy_buf, n_buf, b_buf));
-  MBEDTLS_MPI_CHK(mpi_to_be32( &pt->MBEDTLS_PRIVATE(X), px_buf ));
-  MBEDTLS_MPI_CHK(mpi_to_be32( &pt->MBEDTLS_PRIVATE(Y), py_buf ));
-  MBEDTLS_MPI_CHK(mpi_to_be32( &pt->MBEDTLS_PRIVATE(Z), pz_buf ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_inv_mod(&Zi,
+                                      &pt->MBEDTLS_PRIVATE(Z),
+                                      &grp->MBEDTLS_PRIVATE(P)));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(&ZZ, &Zi, &Zi));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&ZZ, &ZZ, &grp->MBEDTLS_PRIVATE(P)));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(&ZZZ, &ZZ, &Zi));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&ZZZ, &ZZZ, &grp->MBEDTLS_PRIVATE(P)));
 
-  /* --- Allocate output buffers (FreeRTOS heap) ----------------------*/
-  out_x = pvPortMalloc( EC_P256_BYTES);
-  out_y = pvPortMalloc( EC_P256_BYTES);
-
-  if (out_x == NULL || out_y == NULL)
-  {
-    LogError("normalize_jac: pvPortMalloc failed");
-    ret = MBEDTLS_ERR_ECP_ALLOC_FAILED;
-
-    goto cleanup;
-  }
-
-  /* --- Build PKA input ----------------------------------------------*/
-  mont_in.size = EC_P256_BYTES;
-  mont_in.pOp1 = p_buf;
-
-  if (HAL_PKA_MontgomeryParam(&hpka, &mont_in, HAL_MAX_DELAY) != HAL_OK)
-  {
-    uint32_t pka_err = HAL_PKA_GetError(&hpka);
-    LogError("HAL_PKA_MontgomeryParam failed, err=0x%08lx", (unsigned long )pka_err);
-    ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
-    goto cleanup;
-  }
-
-  HAL_PKA_MontgomeryParam_GetResult(&hpka, montgomery_param);
-
-  in.modulusSize = EC_P256_BYTES;
-  in.modulus = p_buf;
-  in.basePointX = px_buf;
-  in.basePointY = py_buf;
-  in.basePointZ = pz_buf;
-  in.pMontgomeryParam = montgomery_param;
-
-  /* --- Launch (polling, blocking) -----------------------------------*/
-  if (HAL_PKA_ECCProjective2Affine(&hpka, &in, HAL_MAX_DELAY) != HAL_OK)
-  {
-    uint32_t pka_err = HAL_PKA_GetError(&hpka);
-    LogError("HAL_PKA_ECCProjective2Affine failed, err=0x%08lx", (unsigned long )pka_err);
-    ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
-    goto cleanup;
-  }
-
-  /* --- Retrieve result ----------------------------------------------*/
-  out.ptX = out_x;
-  out.ptY = out_y;
-  HAL_PKA_ECCProjective2Affine_GetResult(&hpka, &out);
-
-  /* --- Write back ---------------------------------------------------*/
-  MBEDTLS_MPI_CHK(be32_to_mpi( &pt->MBEDTLS_PRIVATE(X), out_x ));
-  MBEDTLS_MPI_CHK(be32_to_mpi( &pt->MBEDTLS_PRIVATE(Y), out_y ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(&pt->MBEDTLS_PRIVATE(X),
+                                      &pt->MBEDTLS_PRIVATE(X),
+                                      &ZZ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&pt->MBEDTLS_PRIVATE(X),
+                                      &pt->MBEDTLS_PRIVATE(X),
+                                      &grp->MBEDTLS_PRIVATE(P)));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(&pt->MBEDTLS_PRIVATE(Y),
+                                      &pt->MBEDTLS_PRIVATE(Y),
+                                      &ZZZ));
+  MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&pt->MBEDTLS_PRIVATE(Y),
+                                      &pt->MBEDTLS_PRIVATE(Y),
+                                      &grp->MBEDTLS_PRIVATE(P)));
   MBEDTLS_MPI_CHK(mbedtls_mpi_lset( &pt->MBEDTLS_PRIVATE(Z), 1 ));
 
-  cleanup: vPortFree(out_x); /* FreeRTOS: vPortFree(NULL) is a documented no-op */
-  vPortFree(out_y);
+cleanup:
+  mbedtls_mpi_free(&ZZZ);
+  mbedtls_mpi_free(&ZZ);
+  mbedtls_mpi_free(&Zi);
   return ret;
 }
 #endif /* MBEDTLS_ECP_NORMALIZE_JAC_ALT */
@@ -499,9 +443,9 @@ int mbedtls_internal_ecp_add_mixed(const mbedtls_ecp_group *grp, mbedtls_ecp_poi
 
   /* --- Build PKA input ----------------------------------------------*/
   in.modulusSize = EC_P256_BYTES;
-  in.coefSign = PKA_ECC_COEF_SIGN_NEGATIVE; /* a = -3 for P-256 */
-  in.coefA = P256_A_ABS;
-  in.modulus = p_buf;
+  in.coefSign    = PKA_ECC_COEF_SIGN_NEGATIVE; /* a = -3 for P-256 */
+  in.coefA       = P256_A_ABS;
+  in.modulus     = p_buf;
   /* First addend: P (Jacobian) */
   in.basePointX1 = px_buf;
   in.basePointY1 = py_buf;
@@ -531,7 +475,7 @@ int mbedtls_internal_ecp_add_mixed(const mbedtls_ecp_group *grp, mbedtls_ecp_poi
   MBEDTLS_MPI_CHK(be32_to_mpi( &R->MBEDTLS_PRIVATE(Y), out_y ));
   MBEDTLS_MPI_CHK(be32_to_mpi( &R->MBEDTLS_PRIVATE(Z), out_z ));
 
- cleanup:
+cleanup:
   /* vPortFree(NULL) is a documented FreeRTOS no-op — safe to always call. */
   vPortFree(out_x);
   vPortFree(out_y);
