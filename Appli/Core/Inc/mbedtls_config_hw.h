@@ -456,7 +456,7 @@ void mbedtls_platform_free( void * ptr );
 #define MBEDTLS_ECP_ADD_MIXED_ALT
 #define MBEDTLS_ECP_DOUBLE_JAC_ALT
 /*#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT */
-#define MBEDTLS_ECP_NORMALIZE_JAC_ALT
+/*#define MBEDTLS_ECP_NORMALIZE_JAC_ALT*/
 /* Support for curves with Montgomery arithmetic */
 /*#define MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT */
 /*#define MBEDTLS_ECP_RANDOMIZE_MXZ_ALT */
