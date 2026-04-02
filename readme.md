@@ -111,6 +111,7 @@ flowchart TD
 |---|---|
 | Architecture and middleware | [docs/architecture.md](docs/architecture.md) |
 | Software components | [docs/software_components.md](docs/software_components.md) |
+| Securing the application | [docs/securing_the_application.md](docs/securing_the_application.md) |
 | Flash and RAM memory layout | [docs/memory_layout.md](docs/memory_layout.md) |
 | Hardware crypto accelerators | [Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md](Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md) |
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
