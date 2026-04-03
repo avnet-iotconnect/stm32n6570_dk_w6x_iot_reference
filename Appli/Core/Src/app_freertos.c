@@ -44,6 +44,7 @@
 #include "sys_evt.h"
 
 #include "st67w6x_netconn.h"
+#include "../../Common/app/iotconnect/iotconnect_runtime.h"
 
 #if MQTT_ENABLED
 #include "mqtt_agent_task.h"
@@ -292,15 +293,32 @@ void StartDefaultTask(void *argument)
 #endif
 
 #if MQTT_ENABLED
-  xTaskCreate(vMQTTAgentTask, "MQTTAgent", TASK_STACK_SIZE_MQTT_AGENT, NULL, TASK_PRIO_MQTTA_AGENT, NULL);
+  if( xAppIsIoTConnectBroker() == pdTRUE )
+  {
+      xTaskCreate( vIoTConnectStartupTask,
+                   "IoTCInit",
+                   TASK_STACK_SIZE_IOTCONNECT,
+                   NULL,
+                   TASK_PRIO_IOTCONNECT,
+                   NULL );
+  }
+  else
+  {
+      xTaskCreate( vMQTTAgentTask, "MQTTAgent", TASK_STACK_SIZE_MQTT_AGENT, NULL, TASK_PRIO_MQTTA_AGENT, NULL );
+  }
 #endif
 
+#if MQTT_ENABLED
+  if( xAppIsIoTConnectBroker() == pdFALSE )
+  {
 #if DEMO_LED
       xTaskCreate(vLEDTask, "LEDTask", TASK_STACK_SIZE_LED, NULL, TASK_PRIO_LED, NULL);
 #endif
 
 #if DEMO_BUTTON
       xTaskCreate(vButtonTask, "ButtonTask", TASK_STACK_SIZE_BUTTON, NULL, TASK_PRIO_BUTTON, NULL);
+#endif
+  }
 #endif
 
   /* Infinite loop */

@@ -168,6 +168,79 @@ static void vPrintDer( ConsoleIO_t * pxCIO,
     }
 }
 
+static void prvFreePrivateKeyContext( mbedtls_pk_context * pxPkCtx )
+{
+    configASSERT( pxPkCtx != NULL );
+
+    #ifdef MBEDTLS_TRANSPORT_PKCS11
+        if( ( pxPkCtx->pk_info == &mbedtls_pkcs11_pk_ecdsa ) ||
+            ( pxPkCtx->pk_info == &mbedtls_pkcs11_pk_rsa ) )
+        {
+            ( void ) lPKCS11PkMbedtlsCloseSessionAndFree( pxPkCtx );
+            return;
+        }
+    #endif /* MBEDTLS_TRANSPORT_PKCS11 */
+
+    mbedtls_pk_free( pxPkCtx );
+}
+
+static int prvSeedCtrDrbg( mbedtls_ctr_drbg_context * pxCtrDrbgCtx,
+                           mbedtls_entropy_context * pxEntropyCtx )
+{
+    static const unsigned char pucPersonalization[] = "cli_pki";
+    int lError = 0;
+
+    configASSERT( pxCtrDrbgCtx != NULL );
+    configASSERT( pxEntropyCtx != NULL );
+
+    mbedtls_ctr_drbg_init( pxCtrDrbgCtx );
+
+    lError = mbedtls_ctr_drbg_seed( pxCtrDrbgCtx,
+                                    mbedtls_entropy_func,
+                                    pxEntropyCtx,
+                                    pucPersonalization,
+                                    sizeof( pucPersonalization ) - 1U );
+
+    MBEDTLS_MSG_IF_ERROR( lError, "Failed to seed CTR_DRBG:" );
+
+    return lError;
+}
+
+int mbedtls_hardware_poll( void * pvData,
+                           unsigned char * pucOutput,
+                           size_t uxLen,
+                           size_t * puxOutLen );
+
+static int prvHardwareRandomCallback( void * pvRngCtx,
+                                      unsigned char * pucOutput,
+                                      size_t uxOutputLen )
+{
+    size_t uxProducedLen = 0;
+    int lError = 0;
+
+    ( void ) pvRngCtx;
+
+    lError = mbedtls_hardware_poll( NULL,
+                                    pucOutput,
+                                    uxOutputLen,
+                                    &uxProducedLen );
+
+    if( ( lError != 0 ) || ( uxProducedLen != uxOutputLen ) )
+    {
+        LogError( "Hardware RNG callback failed. Requested %lu bytes, produced %lu, error %d.",
+                  ( unsigned long ) uxOutputLen,
+                  ( unsigned long ) uxProducedLen,
+                  lError );
+
+        if( lError == 0 )
+        {
+            lError = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
+        }
+    }
+
+    return lError;
+}
+
 
 #define CSR_BUFFER_LEN    2048
 
@@ -182,6 +255,7 @@ static void vSubCommand_GenerateCsr( ConsoleIO_t * pxCIO,
     size_t uxCsrDerLen = 0;
     mbedtls_pk_context xPkCtx;
     mbedtls_entropy_context xEntropyCtx;
+    mbedtls_ctr_drbg_context xCtrDrbgCtx;
     PkiObject_t xPrvKeyObj;
 
     int lError = -1;
@@ -199,8 +273,19 @@ static void vSubCommand_GenerateCsr( ConsoleIO_t * pxCIO,
     pucCsrDer = pvPortMalloc( CSR_BUFFER_LEN );
     mbedtls_pk_init( &xPkCtx );
     mbedtls_entropy_init( &xEntropyCtx );
+    lError = prvSeedCtrDrbg( &xCtrDrbgCtx, &xEntropyCtx );
 
-    xStatus = xPkiReadPrivateKey( &xPkCtx, &xPrvKeyObj, mbedtls_entropy_func, &xEntropyCtx );
+    if( lError >= 0 )
+    {
+        xStatus = xPkiReadPrivateKey( &xPkCtx,
+                                      &xPrvKeyObj,
+                                      prvHardwareRandomCallback,
+                                      NULL );
+    }
+    else
+    {
+        xStatus = PKI_ERR;
+    }
 
     if( xStatus == PKI_SUCCESS )
     {
@@ -244,7 +329,8 @@ static void vSubCommand_GenerateCsr( ConsoleIO_t * pxCIO,
             lError = mbedtls_x509write_csr_der( &xCsr,
                                                 pucCsrDer,
                                                 CSR_BUFFER_LEN,
-                                                mbedtls_entropy_func, &xEntropyCtx );
+                                                prvHardwareRandomCallback,
+                                                NULL );
 
             /* mbedtls_x509write_csr_der returns the length of data written to the end of the buffer. */
             if( lError > 0 )
@@ -284,11 +370,9 @@ static void vSubCommand_GenerateCsr( ConsoleIO_t * pxCIO,
         vPortFree( pucCsrDer );
     }
 
+    mbedtls_ctr_drbg_free( &xCtrDrbgCtx );
     mbedtls_entropy_free( &xEntropyCtx );
-
-    #ifdef MBEDTLS_TRANSPORT_PKCS11
-        lError = lPKCS11PkMbedtlsCloseSessionAndFree( &xPkCtx );
-    #endif /* MBEDTLS_TRANSPORT_PKCS11 */
+    prvFreePrivateKeyContext( &xPkCtx );
 }
 
 static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
@@ -302,6 +386,7 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
     size_t uxCertDerLen = 0;
     mbedtls_pk_context xPkCtx;
     mbedtls_entropy_context xEntropyCtx;
+    mbedtls_ctr_drbg_context xCtrDrbgCtx;
     PkiObject_t xPrvKeyObject;
     int lError = 0;
 
@@ -331,14 +416,27 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
 
     mbedtls_pk_init( &xPkCtx );
     mbedtls_entropy_init( &xEntropyCtx );
+    lError = prvSeedCtrDrbg( &xCtrDrbgCtx, &xEntropyCtx );
 
-    xResult = xPkiReadPrivateKey( &xPkCtx, &xPrvKeyObject, mbedtls_entropy_func, &xEntropyCtx );
+    if( lError >= 0 )
+    {
+        xResult = xPkiReadPrivateKey( &xPkCtx,
+                                      &xPrvKeyObject,
+                                      prvHardwareRandomCallback,
+                                      NULL );
+    }
+    else
+    {
+        xResult = PKI_ERR;
+    }
 
-    if( xResult == PKI_SUCCESS )
+    if( ( lError >= 0 ) && ( xResult == PKI_SUCCESS ) )
     {
         mbedtls_x509write_cert xWriteCertCtx;
+        mbedtls_mpi xCertSerialNumber;
 
         mbedtls_x509write_crt_init( &xWriteCertCtx );
+        mbedtls_mpi_init( &xCertSerialNumber );
 
         /* Set subject and issuer key to the device key */
         mbedtls_x509write_crt_set_subject_key( &xWriteCertCtx, &xPkCtx );
@@ -352,11 +450,9 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
 
         if( lError >= 0 )
         {
-            mbedtls_mpi xCertSerialNumber;
-            mbedtls_mpi_init( &xCertSerialNumber );
-
             lError = mbedtls_mpi_fill_random( &xCertSerialNumber, sizeof( uint64_t ),
-                                              mbedtls_entropy_func, &xEntropyCtx );
+                                              prvHardwareRandomCallback,
+                                              NULL );
             MBEDTLS_MSG_IF_ERROR( lError, "Failed to generate a random certificate serial number: " );
 
             if( lError >= 0 )
@@ -444,7 +540,8 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
             lError = mbedtls_x509write_crt_der( &xWriteCertCtx,
                                                 pucCertDer,
                                                 CSR_BUFFER_LEN,
-                                                mbedtls_entropy_func, &xEntropyCtx );
+                                                prvHardwareRandomCallback,
+                                                NULL );
 
             if( lError > 0 )
             {
@@ -459,6 +556,7 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
         }
 
         /* Cleanup / free memory */
+        mbedtls_mpi_free( &xCertSerialNumber );
         mbedtls_x509write_crt_free( &xWriteCertCtx );
     }
 
@@ -497,11 +595,9 @@ static void vSubCommand_GenerateCertificate( ConsoleIO_t * pxCIO,
         mbedtls_free( pucCertDer );
     }
 
+    mbedtls_ctr_drbg_free( &xCtrDrbgCtx );
     mbedtls_entropy_free( &xEntropyCtx );
-
-    #ifdef MBEDTLS_TRANSPORT_PKCS11
-        lError = lPKCS11PkMbedtlsCloseSessionAndFree( &xPkCtx );
-    #endif /* MBEDTLS_TRANSPORT_PKCS11 */
+    prvFreePrivateKeyContext( &xPkCtx );
 }
 
 static void vSubCommand_GenerateKey( ConsoleIO_t * pxCIO,
@@ -1142,6 +1238,17 @@ static void vSubCommand_ImportPubKey( ConsoleIO_t * pxCIO,
     mbedtls_pk_free( &xPkContext );
 }
 
+static const char * prvGetDerivedPubKeyLabel( const char * pcPrivKeyLabel )
+{
+    if( ( pcPrivKeyLabel != NULL ) &&
+        ( strcmp( pcPrivKeyLabel, TLS_KEY_PRV_LABEL ) == 0 ) )
+    {
+        return TLS_KEY_PUB_LABEL;
+    }
+
+    return NULL;
+}
+
 static void vSubCommand_ImportPrivKey( ConsoleIO_t * pxCIO,
                                       uint32_t ulArgc,
                                       char * ppcArgv[],
@@ -1149,12 +1256,16 @@ static void vSubCommand_ImportPrivKey( ConsoleIO_t * pxCIO,
 {
     BaseType_t xResult = pdTRUE;
     PkiStatus_t xStatus = PKI_SUCCESS;
+    BaseType_t xAssociatedPubKeyUpdated = pdFALSE;
 
     char pcPrivKeyLabel[ configTLS_MAX_LABEL_LEN + 1 ] = { 0 };
-    size_t xPubKeyLabelLen = 0;
+    const char * pcPubKeyLabel = NULL;
+    size_t xPrivKeyLabelLen = 0;
     mbedtls_pk_context xPkContext;
     unsigned char * pucPemBuffer = NULL;
+    unsigned char * pucPubKeyDerBuffer = NULL;
     size_t uxPemDataLen = 0;
+    size_t uxPubKeyDerLen = 0;
 
     configASSERT( pxCIO );
 
@@ -1170,9 +1281,10 @@ static void vSubCommand_ImportPrivKey( ConsoleIO_t * pxCIO,
         ( void ) strncpy( pcPrivKeyLabel, OTA_SIGNING_KEY_LABEL, configTLS_MAX_LABEL_LEN + 1 );
     }
 
-    xPubKeyLabelLen = strnlen( pcPrivKeyLabel, configTLS_MAX_LABEL_LEN );
+    xPrivKeyLabelLen = strnlen( pcPrivKeyLabel, configTLS_MAX_LABEL_LEN );
+    pcPubKeyLabel = prvGetDerivedPubKeyLabel( pcPrivKeyLabel );
 
-    if( xPubKeyLabelLen > configTLS_MAX_LABEL_LEN )
+    if( xPrivKeyLabelLen > configTLS_MAX_LABEL_LEN )
     {
         pxCIO->print( "Error: Private Key label: '" );
         pxCIO->print( pcPrivKeyLabel );
@@ -1202,24 +1314,103 @@ static void vSubCommand_ImportPrivKey( ConsoleIO_t * pxCIO,
     {
         xStatus = xPkiWritePrivKey( pcPrivKeyLabel, pucPemBuffer, uxPemDataLen, &xPkContext );
 
-        if( xStatus == PKI_SUCCESS )
+        if( ( xStatus == PKI_SUCCESS ) &&
+            ( pcPubKeyLabel != NULL ) )
         {
-            pxCIO->print( "Success: Priv Key loaded to label: '" );
+            mbedtls_pk_type_t xKeyType = mbedtls_pk_get_type( &xPkContext );
+
+            if( ( xKeyType != MBEDTLS_PK_ECKEY ) &&
+                ( xKeyType != MBEDTLS_PK_ECKEY_DH ) &&
+                ( xKeyType != MBEDTLS_PK_ECDSA ) )
+            {
+                pxCIO->print( "Warning: Skipping associated public key update for non-EC private key label: '" );
+                pxCIO->print( pcPrivKeyLabel );
+                pxCIO->print( "'.\r\n" );
+            }
+            else
+            {
+                int lRslt = 0;
+
+                pucPubKeyDerBuffer = mbedtls_calloc( 1, CSR_BUFFER_LEN );
+
+                if( pucPubKeyDerBuffer == NULL )
+                {
+                    pxCIO->print( "Error: Out of memory while deriving the public key.\r\n" );
+                    xResult = pdFALSE;
+                }
+                else
+                {
+                    lRslt = mbedtls_pk_write_pubkey_der( &xPkContext,
+                                                         pucPubKeyDerBuffer,
+                                                         CSR_BUFFER_LEN );
+
+                    if( lRslt <= 0 )
+                    {
+                        pxCIO->print( "Error: failed to derive public key from private key.\r\n" );
+                        xResult = pdFALSE;
+                    }
+                    else
+                    {
+                        uxPubKeyDerLen = ( size_t ) lRslt;
+                        ( void ) memmove( pucPubKeyDerBuffer,
+                                          &( pucPubKeyDerBuffer[ CSR_BUFFER_LEN - uxPubKeyDerLen ] ),
+                                          uxPubKeyDerLen );
+
+                        xStatus = xPkiWritePubKey( pcPubKeyLabel,
+                                                   pucPubKeyDerBuffer,
+                                                   uxPubKeyDerLen,
+                                                   &xPkContext );
+
+                        if( xStatus != PKI_SUCCESS )
+                        {
+                            pxCIO->print( "Error: failed to save public key to label: '" );
+                            pxCIO->print( pcPubKeyLabel );
+                            pxCIO->print( "'.\r\n" );
+                            xResult = pdFALSE;
+                        }
+                        else
+                        {
+                            xAssociatedPubKeyUpdated = pdTRUE;
+                        }
+                    }
+                }
+            }
+        }
+
+        if( ( xStatus == PKI_SUCCESS ) &&
+            ( xResult == pdTRUE ) )
+        {
+            pxCIO->print( "Success: Private key loaded to label: '" );
             pxCIO->print( pcPrivKeyLabel );
-            pxCIO->print( "\r\n" );
-            pxCIO->print( (char *) pucPemBuffer );
+            pxCIO->print( "'." );
+
+            if( ( pcPubKeyLabel != NULL ) &&
+                ( xAssociatedPubKeyUpdated == pdTRUE ) )
+            {
+                pxCIO->print( " Associated public key updated in label: '" );
+                pxCIO->print( pcPubKeyLabel );
+                pxCIO->print( "'." );
+            }
+
             pxCIO->print( "\r\n" );
         }
-        else
+        else if( xStatus != PKI_SUCCESS )
         {
-            pxCIO->print( "Error: failed to save public key to label: '" );
+            pxCIO->print( "Error: failed to save private key to label: '" );
             pxCIO->print( pcPrivKeyLabel );
             pxCIO->print( "'.\r\n" );
         }
     }
 
+    if( pucPubKeyDerBuffer != NULL )
+    {
+        mbedtls_free( pucPubKeyDerBuffer );
+        pucPubKeyDerBuffer = NULL;
+    }
+
     if( pucPemBuffer != NULL )
     {
+        mbedtls_platform_zeroize( pucPemBuffer, uxPemDataLen );
         mbedtls_free( pucPemBuffer );
         pucPemBuffer = NULL;
     }
@@ -1453,15 +1644,18 @@ static void vCommand_PKI( ConsoleIO_t * pxCIO,
                 {
                     pcObject = ppcArgv[ LABEL_PUB_IDX ];
 
-                    if( 0 == strcmp( "fleetprov_claim_key", pcObject ) )
+                    if( ( pcObject != NULL ) &&
+                        ( ( 0 == strcmp( TLS_KEY_PRV_LABEL, pcObject ) ) ||
+                          ( 0 == strcmp( "fleetprov_claim_key", pcObject ) ) ) )
                     {
-                      mbedtls_entropy_context xEntropyCtx;
-                      mbedtls_entropy_init( &xEntropyCtx );
-                      vSubCommand_ImportPrivKey( pxCIO, ulArgc, ppcArgv, mbedtls_entropy_func, &xEntropyCtx  );
+                        mbedtls_entropy_context xEntropyCtx;
+                        mbedtls_entropy_init( &xEntropyCtx );
+                        vSubCommand_ImportPrivKey( pxCIO, ulArgc, ppcArgv, mbedtls_entropy_func, &xEntropyCtx );
+                        mbedtls_entropy_free( &xEntropyCtx );
                     }
                     else
                     {
-                      vSubCommand_ImportPubKey( pxCIO, ulArgc, ppcArgv );
+                        vSubCommand_ImportPubKey( pxCIO, ulArgc, ppcArgv );
                     }
                     xSuccess = pdTRUE;
                 }

@@ -77,6 +77,14 @@
         return xSuccess;
     }
 
+    static void vDeleteInvalidFile( lfs_t * pLfsCtx,
+                                    const char * pcFileName,
+                                    const char * pcReason )
+    {
+        LogWarn( "Deleting invalid KV entry '%s': %s", pcFileName, pcReason );
+        ( void ) lfs_remove( pLfsCtx, pcFileName );
+    }
+
 /*
  * @brief Get the length of a value stored in the KVStore implementation
  * @param[in] xKey Key to lookup
@@ -95,6 +103,12 @@
         if( lfs_stat( pLfsCtx, pcFileName, &xFileInfo ) == LFS_ERR_OK )
         {
             xLength = ( xFileInfo.size - sizeof( KVStoreTLVHeader_t ) );
+
+            if( xLength >= KVSTORE_VAL_MAX_LEN )
+            {
+                vDeleteInvalidFile( pLfsCtx, pcFileName, "value exceeds KVSTORE_VAL_MAX_LEN" );
+                xLength = 0;
+            }
         }
 
         return xLength;
@@ -138,7 +152,17 @@
                 vLfsSSizeToErr( &lReturn, sizeof( KVStoreTLVHeader_t ) );
             }
 
-            configASSERT( ( xTlvHeader.length ) < KVSTORE_VAL_MAX_LEN );
+            if( ( lReturn == LFS_ERR_OK ) &&
+                ( ( xTlvHeader.length >= KVSTORE_VAL_MAX_LEN ) ||
+                  ( xTlvHeader.length > xBufferSize ) ) )
+            {
+                vDeleteInvalidFile( pLfsCtx,
+                                    pcFileName,
+                                    ( xTlvHeader.length >= KVSTORE_VAL_MAX_LEN ) ?
+                                    "header length exceeds KVSTORE_VAL_MAX_LEN" :
+                                    "header length exceeds destination buffer" );
+                lReturn = LFS_ERR_CORRUPT;
+            }
 
             /* copy data to provided buffer */
             if( lReturn >= LFS_ERR_OK )
@@ -182,6 +206,19 @@
             }
         }
 
+        if( lReturn != LFS_ERR_OK )
+        {
+            if( pxType != NULL )
+            {
+                *pxType = KV_TYPE_NONE;
+            }
+
+            if( pxLength != NULL )
+            {
+                *pxLength = 0;
+            }
+        }
+
         return( lReturn == LFS_ERR_OK );
     }
 
@@ -210,6 +247,15 @@
 
         if( pvData != NULL )
         {
+            if( xLength >= KVSTORE_VAL_MAX_LEN )
+            {
+                LogError( "Refusing to write KV entry '%s' of length %lu bytes; max is %u.",
+                          kvStoreKeyMap[ xKey ],
+                          ( unsigned long ) xLength,
+                          ( unsigned int ) ( KVSTORE_VAL_MAX_LEN - 1U ) );
+                return pdFALSE;
+            }
+
             /* Construct file name */
             ( void ) strncpy( pcFileName, KVSTORE_PREFIX, KVSTORE_MAX_FNANME );
             ( void ) strncat( pcFileName, kvStoreKeyMap[ xKey ], KVSTORE_MAX_FNANME );

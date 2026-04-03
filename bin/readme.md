@@ -1,14 +1,34 @@
-# Bin Quick Start (AWS + Mosquitto)
+# Bin Quick Start (AWS + Mosquitto + /IOTCONNECT)
 
-This `bin/` flow supports `broker_type: "aws"` and `broker_type: "mosquitto"`.
+This `bin/` flow supports `broker_type: "aws"`, `broker_type: "mosquitto"`, and `broker_type: "iotconnect"`.
+It can flash either:
+- the repo's fallback direct-signing output (`Appli-trusted.bin`)
+- or a prebuilt Trusted Package Creator application package (`.sfi`)
 
 ## Files in `bin/`
 
-- `flash.ps1`: flashes bootloader + selected app binary
+- `flash.ps1`: flashes bootloader + application image, preferring a configured `.sfi` package when available
+- `linux/`: Linux-native flash/provision runners using `bash` + `python3`
 - `provision_mosquitto.ps1`: mosquitto provisioning flow
 - `provision_aws_single.ps1`: AWS single-thing provisioning flow
+- `provision_iotconnect.ps1`: /IOTCONNECT provisioning flow using on-device certificate generation
 - `run_all.ps1`: runs flash, then provisioning
 - `config.json`: profile and connection settings
+
+## Application Packaging Options
+
+The application flash step supports two paths:
+
+1. Prebuilt TPC package:
+   - Set `app_sfi_path` in `config.json`, or
+   - set `STM32_APP_SFI_FILE` in the shell environment.
+   - `flash.ps1` will then flash that `.sfi` package instead of generating `Appli-trusted.bin`.
+2. Fallback direct-signing flow:
+   - If no `.sfi` package is configured, the script keeps the current `STM32_SigningTool_CLI` flow and flashes `Appli-trusted.bin`.
+
+Notes:
+- The repo does not currently generate `.sfi` packages itself.
+- Relative `app_sfi_path` values are resolved from the `bin/` directory.
 
 ## Prerequisites
 
@@ -22,11 +42,18 @@ This `bin/` flow supports `broker_type: "aws"` and `broker_type: "mosquitto"`.
 5. If you plan to use `broker_type: "aws"`:
    - Install AWS CLI v2
    - Configure credentials/region with `aws configure`
+6. If you plan to use `broker_type: "iotconnect"`:
+   - Use the board-generated certificate to create the device in `/IOTCONNECT`
+   - Download the device JSON from `/IOTCONNECT`
+   - Paste the device JSON back into the provisioning script when prompted
+7. Optional, if you want to flash a Trusted Package Creator application package:
+   - Generate the `.sfi` package outside this repo
+   - Set `app_sfi_path` in `bin/config.json` or export `STM32_APP_SFI_FILE`
 
 ## Quick Start
 
 1. Open `bin/config.json`
-2. Choose `broker_type` in `config.json` (`mosquitto` or `aws`).
+2. Choose `broker_type` in `config.json` (`mosquitto`, `aws`, or `iotconnect`).
 3. Run:
 
 ```powershell
@@ -67,14 +94,29 @@ flowchart TD
     H5 --> H6[Ensure Thing exists + attach cert + attach policy]
     H6 --> H7[Import tls_cert + fetch AWS endpoint + set MQTT/Wi-Fi + commit + reset]
 
+    F -->|iotconnect| I[Run provision_iotconnect.ps1]
+    I --> I1[Detect COM + open serial]
+    I1 --> I2[Read or update thing_name]
+    I2 --> I3[Generate tls_key_priv + tls_key_pub + tls_cert on device]
+    I3 --> I4[Show cert + UI instructions for device creation]
+    I4 --> I5[Paste downloaded device JSON]
+    I5 --> I6[Parse device JSON]
+    I6 --> I7[Import built-in root_ca_cert + iotconnect_dra_ca]
+    I7 --> I8[Set broker_type + backend + CPID + ENV + app mode]
+    I8 --> I9[Use thing_name as IOTCONNECT DUID]
+    I9 --> I10[Clear IOTCONNECT cache + commit + reset]
+
 
     G7 --> Z[Done]
     H7 --> Z
+    I10 --> Z
 ```
 
 Notes:
 - Provisioning output is shown live in console and appended to `bin/log.txt`.
 - `run_all.ps1` automatically picks the provisioning script from `broker_type`.
+- The /IOTCONNECT flow now generates the device certificate on-board and uses `thing_name` as the device identity.
+- For a step-by-step `/IOTCONNECT` UI flow adapted from the Avnet quickstart, use [iotconnect_ui_onboard_quickstart.md](../docs/iotconnect_ui_onboard_quickstart.md).
 
 ## Certificate and Runtime Configuration Storage
 
@@ -122,6 +164,28 @@ AWS behavior:
 - Default policy name is `AllowAllDev` (or `aws_policy_name` if provided in `config.json`).
 - If the selected AWS IoT policy does not exist, the script creates it automatically with a default allow-all policy document, then attaches it.
 
+### Option C: /IOTCONNECT
+
+Example:
+
+```json
+{
+  "broker_type": "iotconnect",
+  "wifi_ssid": "YOUR_WIFI",
+  "wifi_credential": "YOUR_PASSWORD"
+}
+```
+
+Notes:
+- The `/IOTCONNECT` flow uses the LED/button demo mode.
+- The script parses backend, CPID, ENV, UID, DID, and discovery URL from the pasted `iotcDeviceConfig.json`.
+- The board `thing_name` is used as the `/IOTCONNECT` device DUID.
+- The script generates the device certificate on-board and prints it for UI copy/paste.
+- MQTT and DRA Root CAs are built into the provisioning script.
+- The script refreshes internal `/IOTCONNECT` cached identity state before reboot so the next boot fetches current backend identity as needed.
+- See [/IOTCONNECT provisioning guide](../docs/provisioning_iotconnect.md) for the full config schema and cache behavior.
+- For the UI-driven version of that flow, see [/IOTCONNECT UI onboarding quickstart](../docs/iotconnect_ui_onboard_quickstart.md).
+
 ## Run the Examples
 
 After provisioning, use these feature guides:
@@ -136,6 +200,8 @@ Use the main project documentation:
 - [Main README](../readme.md)
 - [Mosquitto provisioning guide](../provision_mosquitto.md)
 - [AWS single-device provisioning guide](../provision_aws_single_script.md)
+- [/IOTCONNECT provisioning guide](../docs/provisioning_iotconnect.md)
+- [/IOTCONNECT UI onboarding quickstart](../docs/iotconnect_ui_onboard_quickstart.md)
 
 ## Run and Test Examples After Provisioning
 

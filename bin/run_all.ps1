@@ -81,8 +81,9 @@ function Assert-SerialPortAvailable {
 switch ($brokerType) {
     "mosquitto" { $provisionScript = Join-Path $scriptDir "provision_mosquitto.ps1" }
     "aws" { $provisionScript = Join-Path $scriptDir "provision_aws_single.ps1" }
+    "iotconnect" { $provisionScript = Join-Path $scriptDir "provision_iotconnect.ps1" }
     default {
-        Write-Error "Unsupported broker_type '$brokerType'. Use 'mosquitto' or 'aws' in config.json."
+        Write-Error "Unsupported broker_type '$brokerType'. Use 'mosquitto', 'aws', or 'iotconnect' in config.json."
         exit 1
     }
 }

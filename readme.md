@@ -12,7 +12,7 @@
 This repository provides a complete MQTT-over-TLS reference for the [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html) paired with the [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html).
 
 It is built for a repeatable bring-up workflow: flash, provision, validate, and then move to source-level build/debug in STM32CubeIDE.
-Validated broker flows in this repository are AWS IoT Core and Mosquitto.
+Validated broker flows in this repository are AWS IoT Core, Mosquitto, and /IOTCONNECT.
 
 ## ⚡ Hardware Crypto Acceleration
 
@@ -49,6 +49,7 @@ Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/R
 - Provisioning targets:
   - AWS IoT Core (with auto-provisioning)
   - Mosquitto
+  - /IOTCONNECT (AWS or Azure backend using an on-device generated certificate)
 
 ## Required Software
 
@@ -115,8 +116,11 @@ flowchart TD
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
 | Scripted flash/provision flow | [bin/readme.md](bin/readme.md) |
 | MQTT topic/data model | [docs/mqtt_data_model.md](docs/mqtt_data_model.md) |
+| /IOTCONNECT getting started | [IOTCONNECT_GETTING_STARTED.md](IOTCONNECT_GETTING_STARTED.md) |
 | AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
 | Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |
+| /IOTCONNECT provisioning | [docs/provisioning_iotconnect.md](docs/provisioning_iotconnect.md) |
+| /IOTCONNECT UI onboarding quickstart | [docs/iotconnect_ui_onboard_quickstart.md](docs/iotconnect_ui_onboard_quickstart.md) |
 | Repository structure | [docs/repo_structure.md](docs/repo_structure.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
 

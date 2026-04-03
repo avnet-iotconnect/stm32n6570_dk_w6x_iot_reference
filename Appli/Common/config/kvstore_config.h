@@ -42,6 +42,38 @@
     #define MQTT_PORT_DFLT              8883 /* Default MQTT Port             */
 #endif
 
+#ifndef BROKER_TYPE_DFLT
+    #define BROKER_TYPE_DFLT            "aws" /* Default broker type          */
+#endif
+
+#ifndef IOTCONNECT_CLOUD_DFLT
+    #define IOTCONNECT_CLOUD_DFLT       "aws" /* Default IoTConnect backend   */
+#endif
+
+#ifndef IOTCONNECT_CPID_DFLT
+    #define IOTCONNECT_CPID_DFLT        "" /* Default IoTConnect CPID       */
+#endif
+
+#ifndef IOTCONNECT_ENV_DFLT
+    #define IOTCONNECT_ENV_DFLT         "" /* Default IoTConnect env        */
+#endif
+
+#ifndef IOTCONNECT_DUID_DFLT
+    #define IOTCONNECT_DUID_DFLT        "" /* Default IoTConnect DUID       */
+#endif
+
+#ifndef IOTCONNECT_APP_MODE_DFLT
+    #define IOTCONNECT_APP_MODE_DFLT    "demo" /* Default IoTConnect mode   */
+#endif
+
+#ifndef IOTCONNECT_CACHE_VALID_DFLT
+    #define IOTCONNECT_CACHE_VALID_DFLT 0U /* Default IoTConnect cache flag */
+#endif
+
+#ifndef IOTCONNECT_IDENTITY_JSON_DFLT
+    #define IOTCONNECT_IDENTITY_JSON_DFLT "" /* Default IoTConnect identity */
+#endif
+
 #ifndef WIFI_SSID_DFLT
     #define WIFI_SSID_DFLT              "" /* Default WiFi SSID             */
 #endif
@@ -74,6 +106,16 @@
     CS_CORE_MQTT_PORT,           /* MQTT Port Key              */ \
     CS_TIME_HWM_S_1970           /* Time High Watermark Key    */
 
+#define IOTCONNECT_KV_STORE_KEYS                                  \
+    CS_CORE_BROKER_TYPE,        /* Broker Type Key            */ \
+    CS_IOTCONNECT_CLOUD,        /* IoTConnect Cloud Key       */ \
+    CS_IOTCONNECT_CPID,         /* IoTConnect CPID Key        */ \
+    CS_IOTCONNECT_ENV,          /* IoTConnect Environment Key */ \
+    CS_IOTCONNECT_DUID,         /* IoTConnect DUID Key        */ \
+    CS_IOTCONNECT_APP_MODE,     /* IoTConnect App Mode Key    */ \
+    CS_IOTCONNECT_CACHE_VALID,  /* IoTConnect Cache Flag Key  */ \
+    CS_IOTCONNECT_IDENTITY_JSON /* IoTConnect Identity JSON   */
+
 /* Platform-specific keys */
 #if defined(ST67W6X_NCP)
 typedef enum KvStoreEnum
@@ -86,6 +128,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
+    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -97,6 +140,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
+    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -110,6 +154,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
+    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -124,6 +169,16 @@ typedef enum KvStoreEnum
     "mqtt_port",                /* MQTT Port                   */ \
     "time_hwm"                  /* Time High Watermark         */
 
+#define IOTCONNECT_KV_STORE_STRINGS                               \
+    "broker_type",              /* Broker Type String          */ \
+    "iotc_cloud",               /* IoTConnect Cloud String     */ \
+    "iotc_cpid",                /* IoTConnect CPID String      */ \
+    "iotc_env",                 /* IoTConnect ENV String       */ \
+    "iotc_duid",                /* IoTConnect DUID String      */ \
+    "iotc_app_mode",            /* IoTConnect App Mode String  */ \
+    "iotc_cache_valid",         /* IoTConnect Cache Valid      */ \
+    "iotc_identity_json"        /* IoTConnect Identity JSON    */
+
 /* Platform-specific strings */
 #if defined(ST67W6X_NCP)
 #if defined(DEMO_AWS_FLEET_PROVISION) && !defined(__USE_STSAFE__)
@@ -134,7 +189,8 @@ typedef enum KvStoreEnum
         "wifi_credential",      /* WiFi Credential String      */ \
         "mqtt_security",        /* MQTT Security String        */ \
         "provision_state",      /* Provisioned State           */ \
-        "group_name"            /* Thing Group Name String     */ \
+        "group_name",           /* Thing Group Name String     */ \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #else
 #define KV_STORE_STRINGS                                          \
@@ -142,7 +198,8 @@ typedef enum KvStoreEnum
         COMMON_KV_STORE_STRINGS,                                  \
         "wifi_ssid",            /* WiFi SSID String            */ \
         "wifi_credential",      /* WiFi Credential String      */ \
-        "mqtt_security"         /* MQTT Security String        */ \
+        "mqtt_security",        /* MQTT Security String        */ \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #endif
 #elif defined(ETHERNET)
@@ -151,12 +208,14 @@ typedef enum KvStoreEnum
     {                                                             \
         COMMON_KV_STORE_STRINGS,                                  \
         "provision_state",      /* Provisioned State           */ \
-        "group_name"            /* Thing Group Name String     */ \
+        "group_name",           /* Thing Group Name String     */ \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #else
 #define KV_STORE_STRINGS                                          \
     {                                                             \
-        COMMON_KV_STORE_STRINGS                                   \
+        COMMON_KV_STORE_STRINGS,                                  \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #endif
 
@@ -168,14 +227,16 @@ typedef enum KvStoreEnum
         "wifi_ssid",            /* WiFi SSID String            */ \
         "wifi_credential",      /* WiFi Credential String      */ \
         "provision_state",      /* Provisioned State           */ \
-        "group_name"            /* Thing Group Name String     */ \
+        "group_name",           /* Thing Group Name String     */ \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #else
 #define KV_STORE_STRINGS                                          \
     {                                                             \
         COMMON_KV_STORE_STRINGS,                                  \
         "wifi_ssid",            /* WiFi SSID String            */ \
-        "wifi_credential"       /* WiFi Credential String      */ \
+        "wifi_credential",      /* WiFi Credential String      */ \
+        IOTCONNECT_KV_STORE_STRINGS                               \
     }
 #endif
 #endif
@@ -189,6 +250,16 @@ typedef enum KvStoreEnum
     KV_DFLT(KV_TYPE_UINT32, MQTT_PORT_DFLT),             /* Default MQTT Port           */ \
     KV_DFLT(KV_TYPE_UINT32, 0)                           /* Default Time High Watermark */
 
+#define IOTCONNECT_KV_STORE_DEFAULTS                                                       \
+    KV_DFLT(KV_TYPE_STRING, BROKER_TYPE_DFLT),           /* Default Broker Type         */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CLOUD_DFLT),      /* Default IoTConnect Cloud    */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CPID_DFLT),       /* Default IoTConnect CPID     */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_ENV_DFLT),        /* Default IoTConnect ENV      */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_DUID_DFLT),       /* Default IoTConnect DUID     */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_APP_MODE_DFLT),   /* Default IoTConnect App Mode */ \
+    KV_DFLT(KV_TYPE_UINT32, IOTCONNECT_CACHE_VALID_DFLT),/* Default IoTConnect Cache    */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_IDENTITY_JSON_DFLT) /* Default Identity JSON     */
+
 /* Defaults for ST67W6X_NCP platform */
 #if defined(ST67W6X_NCP)
 #if defined(DEMO_AWS_FLEET_PROVISION) && !defined(__USE_STSAFE__)
@@ -199,7 +270,8 @@ typedef enum KvStoreEnum
         KV_DFLT(KV_TYPE_STRING, WIFI_PASSWORD_DFLT),     /* Default WiFi Password     */   \
         KV_DFLT(KV_TYPE_UINT32, MQTT_SECURITY_DFLT),     /* Default MQTT Security     */   \
         KV_DFLT(KV_TYPE_UINT32, PROVISIONED_DEFAULT),    /* Default Provisioned State */   \
-        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT)   /* Default Thing Group Name  */   \
+        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT),  /* Default Thing Group Name  */   \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #else
 #define KV_STORE_DEFAULTS                                                                  \
@@ -207,7 +279,8 @@ typedef enum KvStoreEnum
         COMMON_KV_STORE_DEFAULTS,                                                          \
         KV_DFLT(KV_TYPE_STRING, WIFI_SSID_DFLT),         /* Default WiFi SSID         */   \
         KV_DFLT(KV_TYPE_STRING, WIFI_PASSWORD_DFLT),     /* Default WiFi Password     */   \
-        KV_DFLT(KV_TYPE_UINT32, MQTT_SECURITY_DFLT)      /* Default MQTT Security     */   \
+        KV_DFLT(KV_TYPE_UINT32, MQTT_SECURITY_DFLT),     /* Default MQTT Security     */   \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #endif
 /* Defaults for ETHERNET platform */
@@ -217,12 +290,14 @@ typedef enum KvStoreEnum
     {                                                                                      \
         COMMON_KV_STORE_DEFAULTS,                                                          \
         KV_DFLT(KV_TYPE_UINT32, PROVISIONED_DEFAULT),    /* Default Provisioned State */   \
-        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT)   /* Default Thing Group Name  */   \
+        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT),  /* Default Thing Group Name  */   \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #else
 #define KV_STORE_DEFAULTS                                                                  \
     {                                                                                      \
-        COMMON_KV_STORE_DEFAULTS                                                           \
+        COMMON_KV_STORE_DEFAULTS,                                                          \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #endif
 
@@ -235,14 +310,16 @@ typedef enum KvStoreEnum
         KV_DFLT(KV_TYPE_STRING, WIFI_SSID_DFLT),         /* Default WiFi SSID         */   \
         KV_DFLT(KV_TYPE_STRING, WIFI_PASSWORD_DFLT),     /* Default WiFi Password     */   \
         KV_DFLT(KV_TYPE_UINT32, PROVISIONED_DEFAULT),    /* Default Provisioned State */   \
-        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT)   /* Default Thing Group Name  */   \
+        KV_DFLT(KV_TYPE_STRING, THING_GROUP_NAME_DFLT),  /* Default Thing Group Name  */   \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #else
 #define KV_STORE_DEFAULTS                                                                  \
     {                                                                                      \
         COMMON_KV_STORE_DEFAULTS,                                                          \
         KV_DFLT(KV_TYPE_STRING, WIFI_SSID_DFLT),         /* Default WiFi SSID         */   \
-        KV_DFLT(KV_TYPE_STRING, WIFI_PASSWORD_DFLT)      /* Default WiFi Password     */   \
+        KV_DFLT(KV_TYPE_STRING, WIFI_PASSWORD_DFLT),     /* Default WiFi Password     */   \
+        IOTCONNECT_KV_STORE_DEFAULTS                                                          \
     }
 #endif
 #endif

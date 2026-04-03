@@ -71,6 +71,61 @@ PkiStatus_t xPrvMbedtlsErrToPkiStatus( int lError )
     return xStatus;
 }
 
+#ifdef MBEDTLS_TRANSPORT_PKCS11
+    static PkiStatus_t xPrvReadPrivateKeyFromPkcs11Pal( mbedtls_pk_context * pxPkCtx,
+                                                        const char * pcPkcs11Label,
+                                                        int ( * pxRngCallback )( void *, unsigned char *, size_t ),
+                                                        void * pvRngCtx )
+    {
+        PkiStatus_t xStatus = PKI_ERR_OBJ_NOT_FOUND;
+        CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+        CK_BYTE_PTR pucKeyData = NULL;
+        CK_ULONG ulKeyDataLen = 0;
+        CK_BBOOL xIsPrivate = CK_FALSE;
+
+        configASSERT( pxPkCtx != NULL );
+        configASSERT( pcPkcs11Label != NULL );
+
+        xHandle = PKCS11_PAL_FindObject( ( CK_BYTE_PTR ) pcPkcs11Label, 0 );
+
+        if( xHandle == eInvalidHandle )
+        {
+            LogError( "Failed to locate PKCS #11 PAL object for label: %s", pcPkcs11Label );
+        }
+        else if( PKCS11_PAL_GetObjectValue( xHandle, &pucKeyData, &ulKeyDataLen, &xIsPrivate ) != CKR_OK )
+        {
+            LogError( "Failed to read PKCS #11 PAL object value for label: %s", pcPkcs11Label );
+        }
+        else if( ( xIsPrivate != CK_TRUE ) || ( pucKeyData == NULL ) || ( ulKeyDataLen == 0U ) )
+        {
+            xStatus = PKI_ERR_ARG_INVALID;
+            LogError( "PKCS #11 PAL object for label %s is not a usable private key.", pcPkcs11Label );
+        }
+        else
+        {
+            int lError = mbedtls_pk_parse_key( pxPkCtx,
+                                               pucKeyData,
+                                               ( size_t ) ulKeyDataLen,
+                                               NULL,
+                                               0,
+                                               pxRngCallback,
+                                               pvRngCtx );
+
+            MBEDTLS_LOG_IF_ERROR( lError, "Failed to parse private key from PKCS #11 PAL label: %s,",
+                                  pcPkcs11Label );
+
+            xStatus = xPrvMbedtlsErrToPkiStatus( lError );
+        }
+
+        if( pucKeyData != NULL )
+        {
+            PKCS11_PAL_GetObjectValueCleanup( pucKeyData, ulKeyDataLen );
+        }
+
+        return xStatus;
+    }
+#endif /* MBEDTLS_TRANSPORT_PKCS11 */
+
 #if TEST_AUTOMATION_INTEGRATION == 1
     char g_CodeSigningCert[] = otapalconfigCODE_SIGNING_CERTIFICATE;
     char g_ClientCertificate[] = keyCLIENT_CERTIFICATE_PEM;
@@ -566,7 +621,17 @@ PkiStatus_t xPkiReadPrivateKey( mbedtls_pk_context * pxPkCtx,
 
             #ifdef MBEDTLS_TRANSPORT_PKCS11
                 case OBJ_FORM_PKCS11_LABEL:
-                    xStatus = xPkcs11InitMbedtlsPkContext( pxPrivateKey->pcPkcs11Label, pxPkCtx, NULL );
+                    xStatus = xPrvReadPrivateKeyFromPkcs11Pal( pxPkCtx,
+                                                               pxPrivateKey->pcPkcs11Label,
+                                                               pxRngCallback,
+                                                               pvRngCtx );
+
+                    if( xStatus != PKI_SUCCESS )
+                    {
+                        LogWarn( "Falling back to PKCS #11 opaque key context for label: %s",
+                                 pxPrivateKey->pcPkcs11Label );
+                        xStatus = xPkcs11InitMbedtlsPkContext( pxPrivateKey->pcPkcs11Label, pxPkCtx, NULL );
+                    }
                     break;
             #endif /* ifdef MBEDTLS_TRANSPORT_PKCS11 */
 

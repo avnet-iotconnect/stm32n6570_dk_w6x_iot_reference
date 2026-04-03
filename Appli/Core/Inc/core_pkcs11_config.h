@@ -167,4 +167,9 @@
 #define pkcs11_ROOT_CA_CERT_LABEL                          "root_ca_cert"
 #define pkcs11configLABEL_ROOT_CERTIFICATE                 ( pkcs11_ROOT_CA_CERT_LABEL )
 
+/**
+ * @brief The PKCS #11 label for the IoTConnect discovery/identity REST API CA certificate.
+ */
+#define pkcs11_IOTCONNECT_DRA_CA_CERT_LABEL                "iotconnect_dra_ca"
+
 #endif /* _CORE_PKCS11_CONFIG_H_ */

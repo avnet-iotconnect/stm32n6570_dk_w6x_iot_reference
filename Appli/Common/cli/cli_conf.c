@@ -48,6 +48,7 @@ static void vSubCommand_SetConfig( ConsoleIO_t * pxCIO,
 static void vCommand_Configure( ConsoleIO_t * pxCIO,
                                 uint32_t ulArgc,
                                 char * ppcArgv[] );
+static BaseType_t xIsHiddenConfigKey( KVStoreKey_t xKey );
 
 const CLI_Command_Definition_t xCommandDef_conf =
 {
@@ -67,6 +68,26 @@ const CLI_Command_Definition_t xCommandDef_conf =
         "        Commit staged config changes to nonvolatile memory.\r\n\n",
     .pxCommandInterpreter = vCommand_Configure
 };
+
+static BaseType_t xIsHiddenConfigKey( KVStoreKey_t xKey )
+{
+    BaseType_t xHidden = pdFALSE;
+
+    switch( xKey )
+    {
+        case CS_IOTCONNECT_DUID:
+        case CS_IOTCONNECT_CACHE_VALID:
+        case CS_IOTCONNECT_IDENTITY_JSON:
+            xHidden = pdTRUE;
+            break;
+
+        case CS_NUM_KEYS:
+        default:
+            break;
+    }
+
+    return xHidden;
+}
 
 static void vSubCommand_CommitConfig( ConsoleIO_t * pxCIO )
 {
@@ -89,6 +110,11 @@ static void vSubCommand_GetConfig( ConsoleIO_t * pxCIO,
     KVStoreValueType_t xKvType = KVStore_getType( xKey );
 
     int32_t lResponseLen = 0;
+
+    if( xIsHiddenConfigKey( xKey ) == pdTRUE )
+    {
+        xKvType = KV_TYPE_NONE;
+    }
 
     switch( xKvType )
     {
@@ -215,7 +241,10 @@ static void vSubCommand_GetConfigAll( ConsoleIO_t * pxCIO )
 {
     for( KVStoreKey_t key = 0; key < CS_NUM_KEYS; key++ )
     {
-        vSubCommand_GetConfig( pxCIO, kvStoreKeyMap[ key ] );
+        if( xIsHiddenConfigKey( key ) == pdFALSE )
+        {
+            vSubCommand_GetConfig( pxCIO, kvStoreKeyMap[ key ] );
+        }
     }
 }
 
@@ -240,6 +269,15 @@ static void vSubCommand_SetConfig( ConsoleIO_t * pxCIO,
         KVStoreKey_t xKey = kvStringToKey( pcKey );
         KVStoreValueType_t xKvType = KVStore_getType( xKey );
         char * pcEndPtr = NULL;
+
+        if( xKey == CS_IOTCONNECT_DUID )
+        {
+            lCharsPrinted = snprintf( pcCliScratchBuffer, CLI_OUTPUT_SCRATCH_BUF_LEN,
+                                      "Error: key: %s is not user-configurable. /IOTCONNECT uses thing_name automatically.\r\n",
+                                      pcKey );
+            pxCIO->write( pcCliScratchBuffer, ( size_t ) lCharsPrinted );
+            return;
+        }
 
         switch( xKvType )
         {

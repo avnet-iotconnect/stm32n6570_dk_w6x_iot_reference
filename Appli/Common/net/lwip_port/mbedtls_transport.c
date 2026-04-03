@@ -37,6 +37,7 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
+#include "task.h"
 
 
 /* mbedTLS includes. */
@@ -62,6 +63,10 @@
     #include "core_pkcs11_config.h"
     #include "core_pkcs11.h"
 #endif
+
+#define MBEDTLS_TRANSPORT_HANDSHAKE_TIMEOUT_MS    ( 10000U )
+#define MBEDTLS_TRANSPORT_BROKER_TRACE_PORT       ( 8883U )
+#define MBEDTLS_TRANSPORT_TRACE_IO_LOG_LIMIT      ( 8U )
 
 typedef struct
 {
@@ -104,6 +109,12 @@ typedef struct TLSContext
     #ifdef TRANSPORT_USE_CTR_DRBG
         mbedtls_ctr_drbg_context xCtrDrbgCtx;
     #endif /* TRANSPORT_USE_CTR_DRBG */
+
+    BaseType_t xTraceBrokerConnect;
+    uint16_t usTracePort;
+    uint32_t ulHandshakeIteration;
+    uint32_t ulSendCallCount;
+    uint32_t ulRecvCallCount;
 } TLSContext_t;
 
 
@@ -348,10 +359,23 @@ static int mbedtls_ssl_send( void * pvCtx,
                              const unsigned char * pcBuf,
                              size_t uxLen )
 {
-    SockHandle_t * pxSockHandle = ( SockHandle_t * ) pvCtx;
+    TLSContext_t * pxTLSCtx = ( TLSContext_t * ) pvCtx;
+    SockHandle_t * pxSockHandle = ( pxTLSCtx != NULL ) ? &( pxTLSCtx->xSockHandle ) : NULL;
     int lError = 0;
     size_t uxBytesSent = 0;
     uint32_t ulBackofftimeMs = 1;
+
+    vPetWatchdog();
+
+    if( ( pxTLSCtx != NULL ) &&
+        ( pxTLSCtx->xTraceBrokerConnect == pdTRUE ) &&
+        ( pxTLSCtx->ulSendCallCount < MBEDTLS_TRANSPORT_TRACE_IO_LOG_LIMIT ) )
+    {
+        pxTLSCtx->ulSendCallCount++;
+        LogInfo( "TLS broker send[%lu]: len=%lu",
+                 ( unsigned long ) pxTLSCtx->ulSendCallCount,
+                 ( unsigned long ) uxLen );
+    }
 
     if( ( pxSockHandle == NULL ) ||
         ( *pxSockHandle < 0 ) )
@@ -404,6 +428,7 @@ static int mbedtls_ssl_send( void * pvCtx,
                     vTaskDelay( ulBackofftimeMs );
                     ulBackofftimeMs = ulBackofftimeMs * 2;
                     lError = 0;
+                    vPetWatchdog();
                 }
             }
         }
@@ -418,8 +443,21 @@ static int mbedtls_ssl_recv( void * pvCtx,
                              unsigned char * pcBuf,
                              size_t xLen )
 {
-    SockHandle_t * pxSockHandle = ( SockHandle_t * ) pvCtx;
+    TLSContext_t * pxTLSCtx = ( TLSContext_t * ) pvCtx;
+    SockHandle_t * pxSockHandle = ( pxTLSCtx != NULL ) ? &( pxTLSCtx->xSockHandle ) : NULL;
     int lError = -1;
+
+    vPetWatchdog();
+
+    if( ( pxTLSCtx != NULL ) &&
+        ( pxTLSCtx->xTraceBrokerConnect == pdTRUE ) &&
+        ( pxTLSCtx->ulRecvCallCount < MBEDTLS_TRANSPORT_TRACE_IO_LOG_LIMIT ) )
+    {
+        pxTLSCtx->ulRecvCallCount++;
+        LogInfo( "TLS broker recv[%lu]: want=%lu",
+                 ( unsigned long ) pxTLSCtx->ulRecvCallCount,
+                 ( unsigned long ) xLen );
+    }
 
     if( ( pxSockHandle != NULL ) &&
         ( *pxSockHandle >= 0 ) )
@@ -429,6 +467,8 @@ static int mbedtls_ssl_recv( void * pvCtx,
                             xLen,
                             0 );
     }
+
+    vPetWatchdog();
 
     if( lError < 0 )
     {
@@ -1059,7 +1099,7 @@ TlsTransportStatus_t mbedtls_transport_configure( NetworkContext_t * pxNetworkCo
         else
         {
             /* Setup mbedtls IO callbacks */
-            mbedtls_ssl_set_bio( pxSslCtx, &( pxTLSCtx->xSockHandle ),
+            mbedtls_ssl_set_bio( pxSslCtx, pxTLSCtx,
                                  mbedtls_ssl_send, mbedtls_ssl_recv, NULL );
 
             pxTLSCtx->xConnectionState = STATE_CONFIGURED;
@@ -1243,6 +1283,8 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
     TLSContext_t * pxTLSCtx = ( TLSContext_t * ) pxNetworkContext;
     mbedtls_ssl_context * pxSslCtx = NULL;
     int lError = 0;
+    uint32_t ulEffectiveRecvTimeoutMs = ulRecvTimeoutMs;
+    uint32_t ulEffectiveSendTimeoutMs = ulSendTimeoutMs;
 
     configASSERT( pxTLSCtx != NULL );
 
@@ -1272,6 +1314,22 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
     else
     {
         pxSslCtx = &( pxTLSCtx->xSslCtx );
+        pxTLSCtx->xTraceBrokerConnect = ( usPort == MBEDTLS_TRANSPORT_BROKER_TRACE_PORT ) ? pdTRUE : pdFALSE;
+        pxTLSCtx->usTracePort = usPort;
+        pxTLSCtx->ulHandshakeIteration = 0;
+        pxTLSCtx->ulSendCallCount = 0;
+        pxTLSCtx->ulRecvCallCount = 0;
+
+        if( pxTLSCtx->xTraceBrokerConnect == pdTRUE )
+        {
+            ulEffectiveRecvTimeoutMs = 0U;
+            ulEffectiveSendTimeoutMs = 0U;
+            LogInfo( "TLS broker connect start: host=%s recv_to=%lu send_to=%lu",
+                     pcHostName,
+                     ( unsigned long ) ulRecvTimeoutMs,
+                     ( unsigned long ) ulSendTimeoutMs );
+            LogInfo( "TLS broker forcing nonblocking socket mode for handshake." );
+        }
     }
 
     /* Set hostname for SNI and server certificate verification */
@@ -1292,6 +1350,7 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
 
     if( xStatus == TLS_TRANSPORT_SUCCESS )
     {
+        vPetWatchdog();
         xStatus = xConnectSocket( pxTLSCtx, pcHostName, usPort );
     }
 
@@ -1301,8 +1360,8 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
         lError = sock_setsockopt( pxTLSCtx->xSockHandle,
                                   SOL_SOCKET,
                                   SO_RCVTIMEO,
-                                  ( void * ) &ulRecvTimeoutMs,
-                                  sizeof( ulRecvTimeoutMs ) );
+                                  ( void * ) &ulEffectiveRecvTimeoutMs,
+                                  sizeof( ulEffectiveRecvTimeoutMs ) );
 
         if( lError != SOCK_OK )
         {
@@ -1316,8 +1375,8 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
         lError |= sock_setsockopt( pxTLSCtx->xSockHandle,
                                    SOL_SOCKET,
                                    SO_SNDTIMEO,
-                                   ( void * ) &ulSendTimeoutMs,
-                                   sizeof( ulSendTimeoutMs ) );
+                                   ( void * ) &ulEffectiveSendTimeoutMs,
+                                   sizeof( ulEffectiveSendTimeoutMs ) );
 
         if( lError != SOCK_OK )
         {
@@ -1327,7 +1386,7 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
     }
 
     if( ( xStatus == TLS_TRANSPORT_SUCCESS ) &&
-        ( ulRecvTimeoutMs == 0 ) )
+        ( ulEffectiveRecvTimeoutMs == 0U ) )
     {
         int flags = sock_fcntl( pxTLSCtx->xSockHandle, F_GETFL, 0 );
 
@@ -1351,10 +1410,47 @@ TlsTransportStatus_t mbedtls_transport_connect( NetworkContext_t * pxNetworkCont
     /* Perform TLS handshake. */
     if( xStatus == TLS_TRANSPORT_SUCCESS )
     {
+        TickType_t xHandshakeStartTicks = xTaskGetTickCount();
+
         /* Perform the TLS handshake. */
         do
         {
+            if( pxTLSCtx->xTraceBrokerConnect == pdTRUE )
+            {
+                pxTLSCtx->ulHandshakeIteration++;
+                LogInfo( "TLS broker handshake[%lu]: enter",
+                         ( unsigned long ) pxTLSCtx->ulHandshakeIteration );
+            }
+
+            vPetWatchdog();
             lError = mbedtls_ssl_handshake( pxSslCtx );
+
+            if( pxTLSCtx->xTraceBrokerConnect == pdTRUE )
+            {
+                LogInfo( "TLS broker handshake[%lu]: ret=%ld hi=%s lo=%s",
+                         ( unsigned long ) pxTLSCtx->ulHandshakeIteration,
+                         ( long ) lError,
+                         mbedtlsHighLevelCodeOrDefault( lError ),
+                         mbedtlsLowLevelCodeOrDefault( lError ) );
+            }
+
+            if( ( lError == MBEDTLS_ERR_SSL_WANT_READ ) ||
+                ( lError == MBEDTLS_ERR_SSL_WANT_WRITE ) )
+            {
+                vPetWatchdog();
+
+                if( pdTICKS_TO_MS( xTaskGetTickCount() - xHandshakeStartTicks ) >= MBEDTLS_TRANSPORT_HANDSHAKE_TIMEOUT_MS )
+                {
+                    LogWarn( "TLS handshake to %s:%u timed out after %u ms.",
+                             pcHostName,
+                             usPort,
+                             ( unsigned int ) MBEDTLS_TRANSPORT_HANDSHAKE_TIMEOUT_MS );
+                    lError = MBEDTLS_ERR_SSL_TIMEOUT;
+                    break;
+                }
+
+                vTaskDelay( 1 );
+            }
         }
         while( ( lError == MBEDTLS_ERR_SSL_WANT_READ ) ||
                ( lError == MBEDTLS_ERR_SSL_WANT_WRITE ) );
