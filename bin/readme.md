@@ -135,7 +135,7 @@ Use the main project documentation:
 
 - [Main README](../readme.md)
 - [Mosquitto provisioning guide](../provision_mosquitto.md)
-- [AWS single-device provisioning guide](../provision_aws_single_script.md)
+- [AWS single-device provisioning guide](../provision_aws_single_cli.md)
 
 ## Run and Test Examples After Provisioning
 

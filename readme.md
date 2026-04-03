@@ -117,8 +117,8 @@ flowchart TD
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
 | Scripted flash/provision flow | [bin/readme.md](bin/readme.md) |
 | MQTT topic/data model | [docs/mqtt_data_model.md](docs/mqtt_data_model.md) |
-| AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
-| Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |
+| AWS provisioning | [docs/provisioning_aws.md](./provision_aws_single_cli.md) |
+| Mosquitto provisioning | [docs/provisioning_mosquitto.md](./provision_mosquitto.md) |
 | Repository structure | [docs/repo_structure.md](docs/repo_structure.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
 
