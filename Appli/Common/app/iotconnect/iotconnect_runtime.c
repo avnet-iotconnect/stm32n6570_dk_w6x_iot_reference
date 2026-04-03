@@ -341,7 +341,7 @@ static BaseType_t prvReadConfigStrings( char ** ppcCpid,
 
     if( ( pcCloud == NULL ) || ( pcCpid == NULL ) || ( pcEnv == NULL ) || ( pcMode == NULL ) )
     {
-        LogError( "IoTConnect configuration is incomplete in KVStore." );
+        LogError( "IOTCONNECT configuration is incomplete in KVStore." );
         goto cleanup;
     }
 
@@ -350,7 +350,7 @@ static BaseType_t prvReadConfigStrings( char ** ppcCpid,
 
     if( prvIsStringBlank( pcCpid ) || prvIsStringBlank( pcEnv ) )
     {
-        LogError( "IoTConnect CPID and ENV must be configured." );
+        LogError( "IOTCONNECT CPID and ENV must be configured." );
         goto cleanup;
     }
 
@@ -358,7 +358,7 @@ static BaseType_t prvReadConfigStrings( char ** ppcCpid,
 
     if( ( pcThingName == NULL ) || prvIsStringBlank( pcThingName ) )
     {
-        LogError( "IoTConnect requires thing_name, but thing_name is empty." );
+        LogError( "IOTCONNECT requires thing_name, but thing_name is empty." );
         goto cleanup;
     }
 
@@ -467,7 +467,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
     if( ( pxUrlCtx == NULL ) || ( pcRootCaLabel == NULL ) )
     {
-        LogError( "Invalid IoTConnect HTTPS request arguments." );
+        LogError( "Invalid IOTCONNECT HTTPS request arguments." );
         return pdFALSE;
     }
 
@@ -477,7 +477,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
     if( ( pcHost == NULL ) || ( pcResource == NULL ) || ( iotcl_dra_url_is_https( pxUrlCtx ) == false ) )
     {
-        LogError( "IoTConnect HTTPS helper received an invalid URL." );
+        LogError( "IOTCONNECT HTTPS helper received an invalid URL." );
         return pdFALSE;
     }
 
@@ -495,7 +495,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
                                      pxRootCaChain,
                                      1U ) != TLS_TRANSPORT_SUCCESS )
     {
-        LogError( "Failed to configure HTTPS transport for IoTConnect REST call." );
+        LogError( "Failed to configure HTTPS transport for IOTCONNECT REST call." );
         goto cleanup;
     }
 
@@ -505,7 +505,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
                                    IOTCONNECT_HTTP_RECV_TIMEOUT_MS,
                                    IOTCONNECT_HTTP_SEND_TIMEOUT_MS ) != TLS_TRANSPORT_SUCCESS )
     {
-        LogError( "Failed to connect to IoTConnect REST endpoint %s.", pcHost );
+        LogError( "Failed to connect to IOTCONNECT REST endpoint %s.", pcHost );
         goto cleanup;
     }
 
@@ -544,7 +544,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
                                 pcRequest,
                                 strlen( pcRequest ) ) <= 0 )
     {
-        LogError( "Failed to send IoTConnect HTTPS request for %s.", pcResource );
+        LogError( "Failed to send IOTCONNECT HTTPS request for %s.", pcResource );
         goto cleanup;
     }
 
@@ -566,7 +566,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
             if( uxNewCap > IOTCONNECT_HTTP_MAX_BUFFER_SIZE )
             {
-                LogError( "IoTConnect HTTP response exceeded %lu bytes.", ( unsigned long ) IOTCONNECT_HTTP_MAX_BUFFER_SIZE );
+                LogError( "IOTCONNECT HTTP response exceeded %lu bytes.", ( unsigned long ) IOTCONNECT_HTTP_MAX_BUFFER_SIZE );
                 goto cleanup;
             }
 
@@ -606,13 +606,13 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
                     if( sscanf( pcResponse, "HTTP/%*d.%*d %d", &lHttpStatus ) != 1 )
                     {
-                        LogError( "Failed to parse IoTConnect HTTP status line." );
+                        LogError( "Failed to parse IOTCONNECT HTTP status line." );
                         goto cleanup;
                     }
 
                     if( lHttpStatus != 200 )
                     {
-                        LogError( "IoTConnect HTTP GET failed with status %d.", lHttpStatus );
+                        LogError( "IOTCONNECT HTTP GET failed with status %d.", lHttpStatus );
                         goto cleanup;
                     }
 
@@ -658,7 +658,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
     if( pcHeaderEnd == NULL )
     {
-        LogError( "IoTConnect HTTP response did not contain headers." );
+        LogError( "IOTCONNECT HTTP response did not contain headers." );
         goto cleanup;
     }
 
@@ -669,7 +669,7 @@ static BaseType_t prvHttpGetJson( const IotclDraUrlContext * pxUrlCtx,
 
     if( uxResponseLen < ( uxHeaderLen + uxExpectedBodyLen ) )
     {
-        LogError( "IoTConnect HTTP response was truncated." );
+        LogError( "IOTCONNECT HTTP response was truncated." );
         goto cleanup;
     }
 
@@ -737,7 +737,7 @@ static void prvClearCachedIdentity( void )
 
     if( xCleared == pdFALSE )
     {
-        LogWarn( "Failed to clear IoTConnect identity cache." );
+        LogWarn( "Failed to clear IOTCONNECT identity cache." );
     }
 }
 
@@ -752,13 +752,13 @@ static BaseType_t prvTryLoadCachedIdentity( void )
     }
 
     /*
-     * The raw IoTConnect identity JSON can exceed the platform KV max value
+     * The raw IOTCONNECT identity JSON can exceed the platform KV max value
      * length (256 bytes). Legacy firmware persisted that full blob and later
      * hit a read-time assert in the littlefs backend. Treat any stored cache as
      * unsupported, clear it without reading the blob back, and refresh from the
      * REST API instead.
      */
-    LogWarn( "Ignoring legacy IoTConnect identity cache. Refreshing it from REST API." );
+    LogWarn( "Ignoring legacy IOTCONNECT identity cache. Refreshing it from REST API." );
     prvClearCachedIdentity();
     return pdFALSE;
 }
@@ -768,7 +768,7 @@ static BaseType_t prvSaveCachedIdentity( const char * pcIdentityJson )
     ( void ) pcIdentityJson;
 
     /*
-     * Do not persist the full IoTConnect identity payload in KV storage.
+     * Do not persist the full IOTCONNECT identity payload in KV storage.
      * The response is larger than the platform KV value limit, and caching it
      * can corrupt the stored entry and assert on the next boot.
      */
@@ -817,7 +817,7 @@ static BaseType_t prvRunIdentityFlow( const char * pcCpid,
 
     if( lStatus != IOTCL_SUCCESS )
     {
-        LogError( "Failed to parse IoTConnect discovery response." );
+        LogError( "Failed to parse IOTCONNECT discovery response." );
         goto cleanup;
     }
 
@@ -839,7 +839,7 @@ static BaseType_t prvRunIdentityFlow( const char * pcCpid,
 
     if( lStatus != IOTCL_SUCCESS )
     {
-        LogError( "Failed to parse IoTConnect identity response." );
+        LogError( "Failed to parse IOTCONNECT identity response." );
         goto cleanup;
     }
 
@@ -885,7 +885,7 @@ static BaseType_t prvBootstrapIoTConnect( void )
 
         if( xIoTConnectRuntime.xEventQueue == NULL )
         {
-            LogError( "Failed to create IoTConnect runtime queue." );
+            LogError( "Failed to create IOTCONNECT runtime queue." );
             return pdFALSE;
         }
     }
@@ -920,7 +920,7 @@ static BaseType_t prvBootstrapIoTConnect( void )
 
     if( iotcl_init( &xClientConfig ) != IOTCL_SUCCESS )
     {
-        LogError( "Failed to initialize IoTConnect client library." );
+        LogError( "Failed to initialize IOTCONNECT client library." );
         goto cleanup;
     }
 
@@ -1056,7 +1056,7 @@ static void prvIoTConnectMqttSendCallback( const char * pcTopic,
 
     if( xStatus != MQTTSuccess )
     {
-        LogWarn( "IoTConnect publish failed for topic %s with status %s.",
+        LogWarn( "IOTCONNECT publish failed for topic %s with status %s.",
                  pcTopic,
                  MQTT_Status_strerror( xStatus ) );
     }
@@ -1077,7 +1077,7 @@ static BaseType_t prvSubscribeToC2DTopic( MQTTAgentHandle_t xMqttHandle )
 
     if( pcTopicFilter == NULL )
     {
-        LogError( "IoTConnect C2D topic is not configured." );
+        LogError( "IOTCONNECT C2D topic is not configured." );
         return pdFALSE;
     }
 
@@ -1091,7 +1091,7 @@ static BaseType_t prvSubscribeToC2DTopic( MQTTAgentHandle_t xMqttHandle )
 
         if( xMqttStatus != MQTTSuccess )
         {
-            LogWarn( "Failed to subscribe to IoTConnect C2D topic. Retrying." );
+            LogWarn( "Failed to subscribe to IOTCONNECT C2D topic. Retrying." );
             vTaskDelay( pdMS_TO_TICKS( 1000U ) );
         }
     } while( xMqttStatus != MQTTSuccess );
@@ -1110,7 +1110,7 @@ static void prvC2DIncomingPublishCallback( void * pvIncomingPublishCallbackConte
         ( pxPublishInfo->pTopicName == NULL ) ||
         ( pxPublishInfo->topicNameLength >= sizeof( pcTopic ) ) )
     {
-        LogError( "Received invalid IoTConnect incoming publish callback." );
+        LogError( "Received invalid IOTCONNECT incoming publish callback." );
         return;
     }
 
@@ -1190,7 +1190,7 @@ static BaseType_t prvPublishDemoTelemetry( void )
     }
     else
     {
-        LogWarn( "Failed to publish IoTConnect demo telemetry." );
+        LogWarn( "Failed to publish IOTCONNECT demo telemetry." );
     }
 
     iotcl_telemetry_destroy( xMessage );
@@ -1222,7 +1222,7 @@ static BaseType_t prvPublishSampleTelemetry( void )
     }
     else
     {
-        LogWarn( "Failed to publish IoTConnect sample telemetry." );
+        LogWarn( "Failed to publish IOTCONNECT sample telemetry." );
     }
 
     iotcl_telemetry_destroy( xMessage );
@@ -1238,7 +1238,7 @@ static void prvQueueEvent( const IoTConnectQueuedEvent_t * pxEvent )
                               pxEvent,
                               0U ) != pdTRUE )
         {
-            LogWarn( "IoTConnect event queue is full. Dropping event." );
+            LogWarn( "IOTCONNECT event queue is full. Dropping event." );
         }
     }
 }
@@ -1585,7 +1585,7 @@ void vIoTConnectStartupTask( void * pvParameters )
             vTaskDelete( NULL );
         }
 
-        LogWarn( "IoTConnect bootstrap failed. Retrying in 5 seconds." );
+        LogWarn( "IOTCONNECT bootstrap failed. Retrying in 5 seconds." );
         vTaskDelay( pdMS_TO_TICKS( 5000U ) );
     }
 }

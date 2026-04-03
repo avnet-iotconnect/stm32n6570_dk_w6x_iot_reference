@@ -1,6 +1,6 @@
-# IoTConnect Templates
+# IOTCONNECT Templates
 
-This folder contains the reviewed IoTConnect device template for the STM32N6 W6X IoT reference firmware.
+This folder contains the reviewed IOTCONNECT device template for the STM32N6 W6X IoT reference firmware.
 
 Source reviewed against:
 - [iotconnect_runtime.c](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/Appli/Common/app/iotconnect/iotconnect_runtime.c)
@@ -9,7 +9,7 @@ Source reviewed against:
 
 ## Firmware Modes
 
-The firmware supports two IoTConnect app modes via KV key `iotc_app_mode`:
+The firmware supports two IOTCONNECT app modes via KV key `iotc_app_mode`:
 
 - `demo`
   - Default mode
@@ -49,4 +49,4 @@ The firmware supports two IoTConnect app modes via KV key `iotc_app_mode`:
 
 ## Cloud-Side Payload Note
 
-The device publishes IoTConnect vendor telemetry in the raw `d` envelope format. Cloud dashboards/events may show a transformed wrapper such as `msgType`, `uniqueId`, `reporting`, and `time`. That wrapper is not the exact on-device MQTT payload.
+The device publishes IOTCONNECT vendor telemetry in the raw `d` envelope format. Cloud dashboards/events may show a transformed wrapper such as `msgType`, `uniqueId`, `reporting`, and `time`. That wrapper is not the exact on-device MQTT payload.

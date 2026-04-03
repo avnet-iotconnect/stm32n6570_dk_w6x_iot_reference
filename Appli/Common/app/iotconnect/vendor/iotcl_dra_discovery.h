@@ -5,7 +5,7 @@
 
 /*
  * This file contains functions that aid in developing SDKs for specific platforms or help implement custom approaches
- * for IoTConnect discovery HTTP API.
+ * for IOTCONNECT discovery HTTP API.
  */
 
 #ifndef IOTCL_DRA_DISCOVERY_H

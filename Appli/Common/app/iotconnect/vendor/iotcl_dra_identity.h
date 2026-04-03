@@ -5,7 +5,7 @@
 
 /*
  * This file contains functions that aid in developing SDKs for specific platforms or help implement custom approaches
- * for IoTConnect discovery HTTP API.
+ * for IOTCONNECT discovery HTTP API.
  */
 
 #ifndef IOTCL_DRA_IDENTITY_H
@@ -24,10 +24,10 @@ extern "C" {
 // Formats an input base url URL to use to call identity REST API
 int iotcl_dra_identity_build_url(IotclDraUrlContext *base_url_context, const char *duid);
 
-// Parse an identity response and configure IoTConnect library mqtt settings with the response result
+// Parse an identity response and configure IOTCONNECT library mqtt settings with the response result
 int iotcl_dra_identity_configure_library_mqtt(const char *response_str);
 
-// Parse an identity response and configure IoTConnect library mqtt settings with the response result
+// Parse an identity response and configure IOTCONNECT library mqtt settings with the response result
 int iotcl_dra_identity_configure_library_mqtt_with_length(const uint8_t *response_data, size_t response_data_size);
 
 

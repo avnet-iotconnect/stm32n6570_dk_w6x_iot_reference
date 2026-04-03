@@ -51,7 +51,7 @@
 #define pkcs11palFILE_NAME_CLAIM_CERTIFICATE     "corePKCS11_Claim_Cert.dat"        /**< The file name of the Provisioning Claim Certificate object. */
 #define pkcs11palFILE_NAME_CLAIM_KEY             "corePKCS11_Claim_Key.dat"         /**< The file name of the Provisioning Claim Key object. */
 #define pkcs11palFILE_NAME_CA_CERTIFICATE        "corePKCS11_CA_Cert.dat"           /**< The file name of the CA Certificate object. */
-#define pkcs11palFILE_NAME_IOTCONNECT_DRA_CA_CERTIFICATE "corePKCS11_IotConnect_DRA_CA_Cert.dat" /**< The file name of the IoTConnect DRA CA Certificate object. */
+#define pkcs11palFILE_NAME_IOTCONNECT_DRA_CA_CERTIFICATE "corePKCS11_IotConnect_DRA_CA_Cert.dat" /**< The file name of the IOTCONNECT DRA CA Certificate object. */
 
 
 void PAL_UTILS_LabelToFilenameHandle( const char * pcLabel,

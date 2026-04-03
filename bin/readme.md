@@ -1,34 +1,20 @@
 # Bin Quick Start (AWS + Mosquitto + /IOTCONNECT)
 
 This `bin/` flow supports `broker_type: "aws"`, `broker_type: "mosquitto"`, and `broker_type: "iotconnect"`.
-It can flash either:
-- the repo's fallback direct-signing output (`Appli-trusted.bin`)
-- or a prebuilt Trusted Package Creator application package (`.sfi`)
+It flashes the repo's direct-signing output for the application image.
 
 ## Files in `bin/`
 
-- `flash.ps1`: flashes bootloader + application image, preferring a configured `.sfi` package when available
-- `linux/`: Linux-native flash/provision runners using `bash` + `python3`
+- `flash.ps1`: flashes bootloader + application image
 - `provision_mosquitto.ps1`: mosquitto provisioning flow
 - `provision_aws_single.ps1`: AWS single-thing provisioning flow
 - `provision_iotconnect.ps1`: /IOTCONNECT provisioning flow using on-device certificate generation
 - `run_all.ps1`: runs flash, then provisioning
 - `config.json`: profile and connection settings
 
-## Application Packaging Options
+## Application Packaging
 
-The application flash step supports two paths:
-
-1. Prebuilt TPC package:
-   - Set `app_sfi_path` in `config.json`, or
-   - set `STM32_APP_SFI_FILE` in the shell environment.
-   - `flash.ps1` will then flash that `.sfi` package instead of generating `Appli-trusted.bin`.
-2. Fallback direct-signing flow:
-   - If no `.sfi` package is configured, the script keeps the current `STM32_SigningTool_CLI` flow and flashes `Appli-trusted.bin`.
-
-Notes:
-- The repo does not currently generate `.sfi` packages itself.
-- Relative `app_sfi_path` values are resolved from the `bin/` directory.
+The application flash step always uses the repo's STM32 signing flow and flashes the generated signed application image.
 
 ## Prerequisites
 
@@ -46,9 +32,6 @@ Notes:
    - Use the board-generated certificate to create the device in `/IOTCONNECT`
    - Download the device JSON from `/IOTCONNECT`
    - Paste the device JSON back into the provisioning script when prompted
-7. Optional, if you want to flash a Trusted Package Creator application package:
-   - Generate the `.sfi` package outside this repo
-   - Set `app_sfi_path` in `bin/config.json` or export `STM32_APP_SFI_FILE`
 
 ## Quick Start
 

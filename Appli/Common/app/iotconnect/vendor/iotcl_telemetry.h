@@ -17,14 +17,14 @@ extern "C" {
 typedef struct IotclMessageHandleTag *IotclMessageHandle;
 
 /*
- * Create a message handle given IoTConnect configuration.
+ * Create a message handle given IOTCONNECT configuration.
  * This handle needs to be passed to all function in this module.
  * The handle needs to be be destroyed to free up resources, once the message is sent.
  */
 IotclMessageHandle iotcl_telemetry_create(void);
 
 /*
- * Destroys the IoTConnect message handle.
+ * Destroys the IOTCONNECT message handle.
  */
 void iotcl_telemetry_destroy(IotclMessageHandle message);
 
@@ -44,16 +44,16 @@ int iotcl_telemetry_add_new_data_set(IotclMessageHandle message, const char *iso
 /*
  * Sets a value in the current data set.
  * The path argument is the name of the value the user wants to set.
- * The path argument can be passed in dot notation to set nested values of the IoTConnect OBJECT type values.
+ * The path argument can be passed in dot notation to set nested values of the IOTCONNECT OBJECT type values.
  * fore example "accelerometer.x" or "accelerometer.y" set x and y respectively in the accelerometer object.
- * Use iotcl_telemetry_set_number to set DOUBLE, INTEGER, LONG and similar IoTConnect data types.
+ * Use iotcl_telemetry_set_number to set DOUBLE, INTEGER, LONG and similar IOTCONNECT data types.
  */
 int iotcl_telemetry_set_number(IotclMessageHandle message, const char *path, double value);
 
-// Use this function to set STRING, DATE, TIME, DATETIME and similar IoTConnect types that use JSON string.
+// Use this function to set STRING, DATE, TIME, DATETIME and similar IOTCONNECT types that use JSON string.
 int iotcl_telemetry_set_string(IotclMessageHandle message, const char *path, const char *value);
 
-// Use this function to set BOOLEAN IoTConnect type.
+// Use this function to set BOOLEAN IOTCONNECT type.
 int iotcl_telemetry_set_bool(IotclMessageHandle message, const char *path, bool value);
 
 // Setting a value to null may be desired to indicate that the value is not available.

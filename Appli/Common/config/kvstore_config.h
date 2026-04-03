@@ -47,31 +47,31 @@
 #endif
 
 #ifndef IOTCONNECT_CLOUD_DFLT
-    #define IOTCONNECT_CLOUD_DFLT       "aws" /* Default IoTConnect backend   */
+    #define IOTCONNECT_CLOUD_DFLT       "aws" /* Default IOTCONNECT backend   */
 #endif
 
 #ifndef IOTCONNECT_CPID_DFLT
-    #define IOTCONNECT_CPID_DFLT        "" /* Default IoTConnect CPID       */
+    #define IOTCONNECT_CPID_DFLT        "" /* Default IOTCONNECT CPID       */
 #endif
 
 #ifndef IOTCONNECT_ENV_DFLT
-    #define IOTCONNECT_ENV_DFLT         "" /* Default IoTConnect env        */
+    #define IOTCONNECT_ENV_DFLT         "" /* Default IOTCONNECT env        */
 #endif
 
 #ifndef IOTCONNECT_DUID_DFLT
-    #define IOTCONNECT_DUID_DFLT        "" /* Default IoTConnect DUID       */
+    #define IOTCONNECT_DUID_DFLT        "" /* Default IOTCONNECT DUID       */
 #endif
 
 #ifndef IOTCONNECT_APP_MODE_DFLT
-    #define IOTCONNECT_APP_MODE_DFLT    "demo" /* Default IoTConnect mode   */
+    #define IOTCONNECT_APP_MODE_DFLT    "demo" /* Default IOTCONNECT mode   */
 #endif
 
 #ifndef IOTCONNECT_CACHE_VALID_DFLT
-    #define IOTCONNECT_CACHE_VALID_DFLT 0U /* Default IoTConnect cache flag */
+    #define IOTCONNECT_CACHE_VALID_DFLT 0U /* Default IOTCONNECT cache flag */
 #endif
 
 #ifndef IOTCONNECT_IDENTITY_JSON_DFLT
-    #define IOTCONNECT_IDENTITY_JSON_DFLT "" /* Default IoTConnect identity */
+    #define IOTCONNECT_IDENTITY_JSON_DFLT "" /* Default IOTCONNECT identity */
 #endif
 
 #ifndef WIFI_SSID_DFLT
@@ -108,13 +108,13 @@
 
 #define IOTCONNECT_KV_STORE_KEYS                                  \
     CS_CORE_BROKER_TYPE,        /* Broker Type Key            */ \
-    CS_IOTCONNECT_CLOUD,        /* IoTConnect Cloud Key       */ \
-    CS_IOTCONNECT_CPID,         /* IoTConnect CPID Key        */ \
-    CS_IOTCONNECT_ENV,          /* IoTConnect Environment Key */ \
-    CS_IOTCONNECT_DUID,         /* IoTConnect DUID Key        */ \
-    CS_IOTCONNECT_APP_MODE,     /* IoTConnect App Mode Key    */ \
-    CS_IOTCONNECT_CACHE_VALID,  /* IoTConnect Cache Flag Key  */ \
-    CS_IOTCONNECT_IDENTITY_JSON /* IoTConnect Identity JSON   */
+    CS_IOTCONNECT_CLOUD,        /* IOTCONNECT Cloud Key       */ \
+    CS_IOTCONNECT_CPID,         /* IOTCONNECT CPID Key        */ \
+    CS_IOTCONNECT_ENV,          /* IOTCONNECT Environment Key */ \
+    CS_IOTCONNECT_DUID,         /* IOTCONNECT DUID Key        */ \
+    CS_IOTCONNECT_APP_MODE,     /* IOTCONNECT App Mode Key    */ \
+    CS_IOTCONNECT_CACHE_VALID,  /* IOTCONNECT Cache Flag Key  */ \
+    CS_IOTCONNECT_IDENTITY_JSON /* IOTCONNECT Identity JSON   */
 
 /* Platform-specific keys */
 #if defined(ST67W6X_NCP)
@@ -128,7 +128,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
-    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
+    IOTCONNECT_KV_STORE_KEYS,    /* IOTCONNECT Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -140,7 +140,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
-    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
+    IOTCONNECT_KV_STORE_KEYS,    /* IOTCONNECT Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -154,7 +154,7 @@ typedef enum KvStoreEnum
     CS_PROVISIONED,              /* Provisioned State Key      */
     CS_THING_GROUP_NAME,         /* Thing Group Name Key       */
 #endif
-    IOTCONNECT_KV_STORE_KEYS,    /* IoTConnect Keys            */
+    IOTCONNECT_KV_STORE_KEYS,    /* IOTCONNECT Keys            */
     CS_NUM_KEYS                  /* Total Number of Keys       */
 } KVStoreKey_t;
 
@@ -171,13 +171,13 @@ typedef enum KvStoreEnum
 
 #define IOTCONNECT_KV_STORE_STRINGS                               \
     "broker_type",              /* Broker Type String          */ \
-    "iotc_cloud",               /* IoTConnect Cloud String     */ \
-    "iotc_cpid",                /* IoTConnect CPID String      */ \
-    "iotc_env",                 /* IoTConnect ENV String       */ \
-    "iotc_duid",                /* IoTConnect DUID String      */ \
-    "iotc_app_mode",            /* IoTConnect App Mode String  */ \
-    "iotc_cache_valid",         /* IoTConnect Cache Valid      */ \
-    "iotc_identity_json"        /* IoTConnect Identity JSON    */
+    "iotc_cloud",               /* IOTCONNECT Cloud String     */ \
+    "iotc_cpid",                /* IOTCONNECT CPID String      */ \
+    "iotc_env",                 /* IOTCONNECT ENV String       */ \
+    "iotc_duid",                /* IOTCONNECT DUID String      */ \
+    "iotc_app_mode",            /* IOTCONNECT App Mode String  */ \
+    "iotc_cache_valid",         /* IOTCONNECT Cache Valid      */ \
+    "iotc_identity_json"        /* IOTCONNECT Identity JSON    */
 
 /* Platform-specific strings */
 #if defined(ST67W6X_NCP)
@@ -252,12 +252,12 @@ typedef enum KvStoreEnum
 
 #define IOTCONNECT_KV_STORE_DEFAULTS                                                       \
     KV_DFLT(KV_TYPE_STRING, BROKER_TYPE_DFLT),           /* Default Broker Type         */ \
-    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CLOUD_DFLT),      /* Default IoTConnect Cloud    */ \
-    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CPID_DFLT),       /* Default IoTConnect CPID     */ \
-    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_ENV_DFLT),        /* Default IoTConnect ENV      */ \
-    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_DUID_DFLT),       /* Default IoTConnect DUID     */ \
-    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_APP_MODE_DFLT),   /* Default IoTConnect App Mode */ \
-    KV_DFLT(KV_TYPE_UINT32, IOTCONNECT_CACHE_VALID_DFLT),/* Default IoTConnect Cache    */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CLOUD_DFLT),      /* Default IOTCONNECT Cloud    */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_CPID_DFLT),       /* Default IOTCONNECT CPID     */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_ENV_DFLT),        /* Default IOTCONNECT ENV      */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_DUID_DFLT),       /* Default IOTCONNECT DUID     */ \
+    KV_DFLT(KV_TYPE_STRING, IOTCONNECT_APP_MODE_DFLT),   /* Default IOTCONNECT App Mode */ \
+    KV_DFLT(KV_TYPE_UINT32, IOTCONNECT_CACHE_VALID_DFLT),/* Default IOTCONNECT Cache    */ \
     KV_DFLT(KV_TYPE_STRING, IOTCONNECT_IDENTITY_JSON_DFLT) /* Default Identity JSON     */
 
 /* Defaults for ST67W6X_NCP platform */

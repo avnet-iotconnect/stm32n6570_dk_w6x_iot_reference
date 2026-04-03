@@ -14,12 +14,12 @@
 
 // from https://docs.iotconnect.io/iotconnect/sdk/message-protocol/device-message-2-1/reference-table/#hellomsg Hello Message & REST API
 static const char* iotcl_dra_ec_error_mapping[] = {
-        "OK – No Error",
+        "OK â€“ No Error",
         "Device not found. Device is not whitelisted to platform.",
         "Device is not active.",
         "Un-Associated. Device has not any template associated with it.",
         "Device is not acquired. Device is created but it is in release state.",
-        "Device is disabled. It’s disabled from broker by Platform Admin",
+        "Device is disabled. Itâ€™s disabled from broker by Platform Admin",
         "Company not found as SID is not valid",
         "Subscription is expired.",
         "Connection Not Allowed.",
@@ -161,7 +161,7 @@ int iotcl_dra_identity_build_url(IotclDraUrlContext *base_url_context, const cha
     return status;
 }
 
-// Parse an identity response and configure IoTConnect library mqtt settings with the response result
+// Parse an identity response and configure IOTCONNECT library mqtt settings with the response result
 int iotcl_dra_identity_configure_library_mqtt(const char *response_str) {
     int status = iotcl_dra_identity_validate_config();
     if (IOTCL_SUCCESS != status) {
@@ -173,7 +173,7 @@ int iotcl_dra_identity_configure_library_mqtt(const char *response_str) {
     return status;
 }
 
-// Parse an identity response and configure IoTConnect library mqtt settings with the response result
+// Parse an identity response and configure IOTCONNECT library mqtt settings with the response result
 int iotcl_dra_identity_configure_library_mqtt_with_length(const uint8_t *response_data, size_t response_data_size) {
     int status = iotcl_dra_identity_validate_config();
     if (IOTCL_SUCCESS != status) {

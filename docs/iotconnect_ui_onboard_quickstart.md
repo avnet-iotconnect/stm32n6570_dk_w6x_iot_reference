@@ -116,7 +116,7 @@ The script then:
 - validates backend, CPID, ENV, UID, DID, and discovery URL
 - checks that UID and DID match the board `thing_name`
 - imports the MQTT root CA
-- imports the IoTConnect DRA CA
+- imports the IOTCONNECT DRA CA
 - verifies the on-device certificate and public key
 - writes:
   - `broker_type=iotconnect`
@@ -126,7 +126,7 @@ The script then:
   - `iotc_app_mode`
   - Wi-Fi settings
 - uses `thing_name` as the `/IOTCONNECT` device identity
-- clears cached IoTConnect identity state
+- clears cached IOTCONNECT identity state
 - commits config and resets the device
 
 ## Step 8. Verify Runtime
@@ -136,7 +136,7 @@ After the board reboots, open the board's ST-LINK COM port at `115200 8N1`.
 Expected signs of success:
 - project startup logs appear
 - Wi-Fi initializes
-- IoTConnect identity/bootstrap completes
+- IOTCONNECT identity/bootstrap completes
 - telemetry is published
 
 ## Supported On-Device Identity Types

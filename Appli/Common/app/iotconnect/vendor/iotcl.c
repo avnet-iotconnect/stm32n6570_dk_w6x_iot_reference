@@ -296,8 +296,8 @@ int iotcl_mqtt_send_telemetry(IotclMessageHandle msg, bool pretty) {
     if (!json_str) {
         return IOTCL_ERR_FAILED; // called function will print the error
     }
-    IOTCL_INFO("IoTConnect telemetry topic: %s", config.mqtt_config.pub_rpt);
-    IOTCL_INFO("IoTConnect telemetry payload: %s", json_str);
+    IOTCL_INFO("IOTCONNECT telemetry topic: %s", config.mqtt_config.pub_rpt);
+    IOTCL_INFO("IOTCONNECT telemetry payload: %s", json_str);
     config.mqtt_send_cb(config.mqtt_config.pub_rpt, json_str);
     iotcl_telemetry_destroy_serialized_string(json_str);
     return IOTCL_SUCCESS;

@@ -94,7 +94,7 @@
   "enableCSR": "false",
   "c2dOnDemand": 0,
   "properties": {
-    "description": "STM32N6 W6X IoT button and LED demo template for IoTConnect.",
+    "description": "STM32N6 W6X IoT button and LED demo template for IOTCONNECT.",
     "dataFrequency": "5",
     "fileSupport": false,
     "certRenewalDay": 0,

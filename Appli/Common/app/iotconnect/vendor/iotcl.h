@@ -23,11 +23,11 @@
  *
  * ---- DEVICE CONFIGURATION GUIDE ----
  * To determine how to set the IotclDeviceConfigType value, one needs to understand the difference between the
- * two the IoTConnect instance types and how to supply appropriate parameters:
+ * two the IOTCONNECT instance types and how to supply appropriate parameters:
  * - Accounts may be on shared or dedicated instances.
  * - In addition to being needed for MQTT connect, the MQTT Client ID is a part of the topics format
  *    and the MQTT username in case of Azure IoTHub connections. The Client ID can be found in the Connection Info
- *    tab at your device's Info panel at the IoTConnect web site.
+ *    tab at your device's Info panel at the IOTCONNECT web site.
  * - If on dedicated instance, the MQTT Client ID is the same as the device ID.
  * - If on shared instance (trial account etc.), the client ID in the info panel will be prefixed with your CPID.
  *   In this case the library will need the CPID value configured in order to construct the MQTT Client ID string.
@@ -45,13 +45,13 @@
  * and permanently kept in MQTT config when passed -- or if passed in case of AWS.
  *
  * To determine if you are on a dedicated or shared instance you can examine the Connection Info panel at the
- * IoTConnect web site and follow this simple guide:
+ * IOTCONNECT web site and follow this simple guide:
  *  - If your account is on a shared instance, device's clientID will only contain the device ID.
  *  - If your account is on a shared instance, device's clientID will be prefixed by your CPID.
  *
  *
  * Here are some example reporting topics that will be generated depending on which back end cloud solution is used
- * (AWS/Azure) and which IoTConnect instance type is used:
+ * (AWS/Azure) and which IOTCONNECT instance type is used:
  *  IOTCL_DCT_AWS_DEDICATED:
  *      Reporting Topic: $aws/rules/msg_d2c_rpt/mydevice/2.1/0
  *  IOTCL_DCT_AWS_SHARED:
@@ -111,7 +111,7 @@ typedef void (*IotclMqttTransportSend)(const char *topic, const char *json_str);
 
 typedef time_t (*IotclTimeFunction)(void);
 
-// This structure's instance is a part of IoTConnect library's global configuration and is
+// This structure's instance is a part of IOTCONNECT library's global configuration and is
 // permanently kept by the library after iotcl_init() is called, and until iotcl_deinit().
 // The client can use provided values in order to configure their mqtt client.
 // The client can also manually provide this structure's values (along wth RAM storage) when using IOTCL_MQTT_CFG_CUSTOM
@@ -186,7 +186,7 @@ typedef struct {
 } IotclClientConfig;
 
 /* Optional malloc and free alternatives.
- * Call this function at runtime BEFORE calling any other IoTConnect library functions - before iotcl_init
+ * Call this function at runtime BEFORE calling any other IOTCONNECT library functions - before iotcl_init
  * or any other module's function - to redirect malloc to your own custom implementation.
  * The configuration will be forwarded to the cJSON dependency as well.
  * If not supplied, malloc() and free() will be used.
@@ -213,7 +213,7 @@ void iotcl_deinit(void);
 // Returns the MQTT topics for this device. NULL, if not configured.
 IotclMqttConfig *iotcl_mqtt_get_config(void);
 
-// Prints the current IoTConnect mqtt config if the library is configured. Could be useful for troubleshooting.
+// Prints the current IOTCONNECT mqtt config if the library is configured. Could be useful for troubleshooting.
 // If value is null, it is not printed.
 void iotcl_mqtt_print_config(void);
 

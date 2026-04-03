@@ -4,7 +4,7 @@
  */
 
 /*
- * This file provides function that provide c2d message parsing and ability to send acks back to IoTConnect.
+ * This file provides function that provide c2d message parsing and ability to send acks back to IOTCONNECT.
  *
  * OTA USE CASES WITH C2D PROCESSING
  * Example simple use:
@@ -122,7 +122,7 @@ const char *iotcl_c2d_get_ota_hw_version(IotclC2dEventData data);
 
 // Returns the Acknowledgement ID from the OTA or command (when "receipt required" setting is set in the template).
 // If a command tha tis configured in the template without "receipt required" is sent, the return value will be NULL.
-// This acknowledgement ID can be used to report the status of OTA or command back to IoTConnect.
+// This acknowledgement ID can be used to report the status of OTA or command back to IOTCONNECT.
 // If you need to destroy the event data during the callback processing, you can iotcl_strdup() or copy this ack ID locally.
 const char *iotcl_c2d_get_ack_id(IotclC2dEventData data);
 

@@ -45,7 +45,7 @@ From [bin](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin):
 .\run_all.ps1
 ```
 
-The IoTConnect step:
+The IOTCONNECT step:
 - generates the keypair and certificate on-device
 - saves the PEM certificate locally
 - prints the board `thing_name`

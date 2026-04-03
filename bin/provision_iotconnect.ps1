@@ -413,7 +413,7 @@ function Validate-DiscoveryUrl {
 
 function Read-PastedJson {
     Write-Host ""
-    Write-Host "Paste the IoTConnect device JSON now."
+    Write-Host "Paste the IOTCONNECT device JSON now."
     Write-Host "When you are finished, type ENDJSON on its own line and press Enter."
     Write-Host ""
 
@@ -428,7 +428,7 @@ function Read-PastedJson {
 
     $jsonText = ($lines -join [Environment]::NewLine).Trim()
     if ([string]::IsNullOrWhiteSpace($jsonText)) {
-        throw "No IoTConnect device JSON was pasted."
+        throw "No IOTCONNECT device JSON was pasted."
     }
 
     return $jsonText
@@ -478,7 +478,7 @@ function Show-UiInstructions {
     Write-Host "A copy of the certificate was saved to:"
     Write-Host "  $SavedCertPath"
     Write-Host ""
-    Write-Host "Certificate to paste into IoTConnect:"
+    Write-Host "Certificate to paste into IOTCONNECT:"
     Write-Host $CertificatePem
 }
 
@@ -523,7 +523,7 @@ try {
     Show-UiInstructions -ThingName $deviceThingName -CertificatePem $certPem -SavedCertPath $certPath
 
     Write-Host ""
-    Write-Host "After creating the device and downloading the IoTConnect device JSON, return here."
+    Write-Host "After creating the device and downloading the IOTCONNECT device JSON, return here."
     [void](Read-Host "Press Enter when you are ready to paste the device JSON")
 
     $pastedJson = Read-PastedJson
@@ -534,7 +534,7 @@ try {
     Validate-DiscoveryUrl -Backend $deviceConfigInfo.Backend -DiscoveryUrl $deviceConfigInfo.DiscoveryUrl
 
     if ($deviceConfigInfo.Uid -ne $deviceThingName) {
-        throw "IoTConnect device JSON uid '$($deviceConfigInfo.Uid)' does not match thing_name '$deviceThingName'."
+        throw "IOTCONNECT device JSON uid '$($deviceConfigInfo.Uid)' does not match thing_name '$deviceThingName'."
     }
 
     Write-Host ""
