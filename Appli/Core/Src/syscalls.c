@@ -145,6 +145,19 @@ int _times(struct tms *buf)
   return -1;
 }
 
+int _gettimeofday(struct timeval *tv, void *tzvp)
+{
+  (void)tzvp;
+
+  if (tv != NULL)
+  {
+    tv->tv_sec = 0;
+    tv->tv_usec = 0;
+  }
+
+  return 0;
+}
+
 int _stat(char *file, struct stat *st)
 {
   (void)file;

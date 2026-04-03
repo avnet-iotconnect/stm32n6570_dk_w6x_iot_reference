@@ -8,7 +8,7 @@ Reference flow:
 This version replaces the Avnet host quickstart with:
 - the firmware already running on the STM32N6570-DK
 - the board CLI on the ST-LINK virtual COM port
-- [provision_iotconnect.ps1](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/provision_iotconnect.ps1)
+- [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
 
 ## What This Flow Uses
 
@@ -18,8 +18,8 @@ This version replaces the Avnet host quickstart with:
   - Windows PowerShell
   - ST-LINK VCP connected to the board CLI
 - Repo assets:
-  - [stm32n6_w6x_iot_template_completed.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
-  - [provision_iotconnect.ps1](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/provision_iotconnect.ps1)
+  - [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+  - [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
 
 ## Before You Start
 
@@ -29,7 +29,7 @@ This version replaces the Avnet host quickstart with:
 4. Confirm the board CLI is alive on the ST-LINK COM port.
 5. Close any serial terminal before running the PowerShell script.
 
-Recommended config in [config.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/config.json):
+Recommended config in [config.json](../bin/config.json):
 
 ```json
 {
@@ -51,7 +51,7 @@ Recommended config in [config.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference
 3. Click `Create Template`.
 4. Click `Import`.
 5. Select:
-   - [stm32n6_w6x_iot_template_completed.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+   - [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
 6. Save the template.
 
 ## Step 3. Start Enrollment On The Board
@@ -59,7 +59,7 @@ Recommended config in [config.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference
 Run:
 
 ```powershell
-cd C:\dev\slim\stm32n6570_dk_w6x_iot_reference\bin
+cd <repo>\bin
 .\provision_iotconnect.ps1
 ```
 
@@ -147,6 +147,6 @@ Current firmware support for this flow:
 
 ## Related Files
 
-- [provision_iotconnect.ps1](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/provision_iotconnect.ps1)
-- [provisioning_iotconnect.md](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/docs/provisioning_iotconnect.md)
-- [stm32n6_w6x_iot_template_completed.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+- [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
+- [provisioning_iotconnect.md](provisioning_iotconnect.md)
+- [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)

@@ -16,6 +16,12 @@ It flashes the repo's direct-signing output for the application image.
 
 The application flash step always uses the repo's STM32 signing flow and flashes the generated signed application image.
 
+If you build from STM32CubeIDE first, use the helper below to copy generated `.bin` artifacts from the project output folders into the `bin/` staging folders expected by the scripts:
+
+```powershell
+.\copy_hex_from_project.ps1
+```
+
 ## Prerequisites
 
 1. Windows + PowerShell
@@ -23,6 +29,8 @@ The application flash step always uses the repo's STM32 signing flow and flashes
    - https://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/stm32cubeprog.html
    - Make sure `STM32_Programmer_CLI.exe` is available at:
    `C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe`
+   - For STM32N6 signing/boot flows, STM32CubeProgrammer `2.20.x` is known-good with the legacy signing command used in this repo.
+   - STM32CubeProgrammer `2.21.0+` changed STM32N6 signing behavior and requires `-align` / `--align` in signing commands.
 3. Board connected through ST-LINK USB
 4. Internet access (scripts download broker Root CA automatically)
 5. If you plan to use `broker_type: "aws"`:
@@ -95,6 +103,7 @@ Notes:
 - Provisioning output is shown live in console and appended to `bin/log.txt`.
 - `run_all.ps1` automatically picks the provisioning script from `broker_type`.
 - The /IOTCONNECT flow now generates the device certificate on-board and uses `thing_name` as the device identity.
+- If you built from STM32CubeIDE, run `.\copy_hex_from_project.ps1` before `.\run_all.ps1` so the staged `bin\Appli\...` and `bin\FSBL\...` files match your latest build output.
 - For a step-by-step `/IOTCONNECT` UI flow adapted from the Avnet quickstart, use [iotconnect_ui_onboard_quickstart.md](../docs/iotconnect_ui_onboard_quickstart.md).
 
 ## Certificate and Runtime Configuration Storage

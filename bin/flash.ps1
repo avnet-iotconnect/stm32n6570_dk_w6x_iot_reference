@@ -35,17 +35,17 @@ if (-not $isWindowsHost -and -not $isLinuxHost -and -not $isMacOSHost -and $env:
 }
 
 if ($isLinuxHost) {
-    $PROGRAMMER = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI"
-    $SIGNING_TOOL = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_SigningTool_CLI"
-    $EXTERNAL_LOADER = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/ExternalLoader/MX66UW1G45G_STM32N6570-DK.stldr"
+    $PROGRAMMER = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer20/bin/STM32_Programmer_CLI"
+    $SIGNING_TOOL = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer20/bin/STM32_SigningTool_CLI"
+    $EXTERNAL_LOADER = "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer20/bin/ExternalLoader/MX66UW1G45G_STM32N6570-DK.stldr"
 } elseif ($isMacOSHost) {
     $PROGRAMMER = "/Applications/STMicroelectronics/STM32CubeProgrammer.app/Contents/MacOS/bin/STM32_Programmer_CLI"
     $SIGNING_TOOL = "/Applications/STMicroelectronics/STM32CubeProgrammer.app/Contents/MacOS/bin/STM32_SigningTool_CLI"
     $EXTERNAL_LOADER = "/Applications/STMicroelectronics/STM32CubeProgrammer.app/Contents/MacOS/bin/ExternalLoader/MX66UW1G45G_STM32N6570-DK.stldr"
 } elseif ($isWindowsHost) {
-    $PROGRAMMER = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe"
-    $SIGNING_TOOL = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_SigningTool_CLI.exe"
-    $EXTERNAL_LOADER = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\ExternalLoader\MX66UW1G45G_STM32N6570-DK.stldr"
+    $PROGRAMMER = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer20\bin\STM32_Programmer_CLI.exe"
+    $SIGNING_TOOL = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer20\bin\STM32_SigningTool_CLI.exe"
+    $EXTERNAL_LOADER = "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer20\bin\ExternalLoader\MX66UW1G45G_STM32N6570-DK.stldr"
 } else {
     Write-Error "Unsupported OS."
     exit 1

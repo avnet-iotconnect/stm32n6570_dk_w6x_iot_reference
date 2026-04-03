@@ -23,7 +23,7 @@ Use [docs/provisioning_iotconnect.md](docs/provisioning_iotconnect.md) when you 
 
 ## 1. Update `bin/config.json`
 
-Edit [bin/config.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/config.json):
+Edit [bin/config.json](bin/config.json):
 
 ```json
 {
@@ -39,7 +39,7 @@ Notes:
 
 ## 2. Flash And Enroll
 
-From [bin](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin):
+From [bin](bin):
 
 ```powershell
 .\run_all.ps1
@@ -109,14 +109,14 @@ On the first `/IOTCONNECT` boot, firmware will:
 
 If the device does not connect:
 
-- verify Wi-Fi credentials in [bin/config.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/config.json)
+- verify Wi-Fi credentials in [bin/config.json](bin/config.json)
 - verify the `/IOTCONNECT` JSON is the correct `iotcDeviceConfig.json` for the created device
 - verify the `/IOTCONNECT` device Unique ID matches the board `thing_name`
 - verify the serial COM port is not busy
 
 ## Related Files
 
-- [bin/provision_iotconnect.ps1](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/provision_iotconnect.ps1)
-- [docs/provisioning_iotconnect.md](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/docs/provisioning_iotconnect.md)
-- [docs/iotconnect_ui_onboard_quickstart.md](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/docs/iotconnect_ui_onboard_quickstart.md)
-- [bin/readme.md](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/readme.md)
+- [bin/provision_iotconnect.ps1](bin/provision_iotconnect.ps1)
+- [docs/provisioning_iotconnect.md](docs/provisioning_iotconnect.md)
+- [docs/iotconnect_ui_onboard_quickstart.md](docs/iotconnect_ui_onboard_quickstart.md)
+- [bin/readme.md](bin/readme.md)

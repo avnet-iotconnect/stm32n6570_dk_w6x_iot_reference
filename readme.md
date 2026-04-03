@@ -57,6 +57,10 @@ Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/R
 - [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) (required for build/debug from source)
 - [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) (required for project regeneration)
 
+STM32N6 note:
+- STM32CubeProgrammer `2.20.x` is known-good with the legacy signing command used in this repo.
+- STM32CubeProgrammer `2.21.0+` changed STM32N6 signing behavior and requires `-align` / `--align`; see [docs/troubleshooting.md](docs/troubleshooting.md).
+
 If you use AWS IoT Core:
 
 - [AWS account](https://aws.amazon.com/)
@@ -72,9 +76,11 @@ If you use AWS IoT Core:
 3. Move to the scripts directory:
    - `cd bin`
 4. Edit broker and Wi-Fi settings in [`config.json`](bin/config.json)
-5. Run:
+5. If you built from STM32CubeIDE first, run:
+   - `.\copy_hex_from_project.ps1`
+6. Run:
    - `.\run_all.ps1`
-6. Open serial logs and validate LED/Button MQTT behavior.
+7. Open serial logs and validate LED/Button MQTT behavior.
 
 For full scripted flashing/provisioning details, see [`bin/readme.md`](bin/readme.md).
 

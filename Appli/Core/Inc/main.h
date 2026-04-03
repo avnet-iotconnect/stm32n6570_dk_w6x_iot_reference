@@ -179,6 +179,7 @@ void Error_Handler(void);
 /******************** Tasks priority ********************/
 #define TASK_PRIO_BUTTON                        (tskIDLE_PRIORITY      + 6 )
 #define TASK_PRIO_LED                           (tskIDLE_PRIORITY      + 9 )
+#define TASK_PRIO_IOTCONNECT                    (tskIDLE_PRIORITY      + 10)
 #define TASK_PRIO_CLI                           (tskIDLE_PRIORITY      + 16)
 #define TASK_PRIO_MQTTA_AGENT                   (tskIDLE_PRIORITY      + 17)
 #define TASK_PRIO_W6X                           (TASK_PRIO_MQTTA_AGENT + 1 )
@@ -186,6 +187,7 @@ void Error_Handler(void);
 /******************** Tasks stack size ********************/
 #define TASK_STACK_SIZE_BUTTON                  1024/** Stack size of the Button process task            */
 #define TASK_STACK_SIZE_LED                     1024/** Stack size of the LED process task               */
+#define TASK_STACK_SIZE_IOTCONNECT              (2 * 2048)/** Stack size of the IOTCONNECT runtime task        */
 #define TASK_STACK_SIZE_CLI                     2048/** Stack size of the CLI process task               */
 #define TASK_STACK_SIZE_MQTT_AGENT              (2 * 2048)/** Stack size of the MQTTAgent process task         */
 #define TASK_STACK_SIZE_W6X                     2048/** Stack size of the W6X process task               */

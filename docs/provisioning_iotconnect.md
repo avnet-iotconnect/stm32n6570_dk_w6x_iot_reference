@@ -122,6 +122,6 @@ Those runtime cache-control keys are implementation details, not user-facing con
 
 ## Related Files
 
-- [bin/provision_iotconnect.ps1](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/bin/provision_iotconnect.ps1)
-- [docs/iotconnect_ui_onboard_quickstart.md](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/docs/iotconnect_ui_onboard_quickstart.md)
-- [IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+- [bin/provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
+- [docs/iotconnect_ui_onboard_quickstart.md](iotconnect_ui_onboard_quickstart.md)
+- [IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)

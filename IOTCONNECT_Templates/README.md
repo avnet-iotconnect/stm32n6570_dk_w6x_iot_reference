@@ -3,9 +3,8 @@
 This folder contains the reviewed IOTCONNECT device template for the STM32N6 W6X IoT reference firmware.
 
 Source reviewed against:
-- [iotconnect_runtime.c](/c:/dev/slim/stm32n6570_dk_w6x_iot_reference/Appli/Common/app/iotconnect/iotconnect_runtime.c)
-- downloaded export:
-  `C:\Users\micha\Downloads\stm32n6 w6x iot_template.JSON`
+- [iotconnect_runtime.c](../Appli/Common/app/iotconnect/iotconnect_runtime.c)
+- original exported template JSON provided during bring-up review
 
 ## Firmware Modes
 

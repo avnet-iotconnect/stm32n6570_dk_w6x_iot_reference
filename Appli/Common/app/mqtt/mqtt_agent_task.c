@@ -69,6 +69,7 @@
 #include "../../net/W6X_ARCH_T01/w6x_transport.h"
 #endif
 #include "sys_evt.h"
+#include "../iotconnect/iotconnect_runtime.h"
 
 /*-----------------------------------------------------------*/
 
@@ -835,6 +836,7 @@ static MQTTStatus_t prvConfigureAgentTaskCtx( MQTTAgentTaskCtx_t * pxCtx,
                                               size_t uxNetworkBufferLen )
 {
     BaseType_t xSuccess = pdTRUE;
+    BaseType_t xIsIoTConnectBroker = xAppIsIoTConnectBroker();
     MQTTStatus_t xStatus = MQTTSuccess;
     size_t uxTempSize = 0;
 
@@ -876,41 +878,79 @@ static MQTTStatus_t prvConfigureAgentTaskCtx( MQTTAgentTaskCtx_t * pxCtx,
         pxCtx->xConnectInfo.cleanSession = true;
         pxCtx->xConnectInfo.keepAliveSeconds = KEEP_ALIVE_INTERVAL_S;
 
-#if !defined(ST67W6X_NCP)
-        char * pucMqttEndpoint = NULL;
-        size_t uxMqttEndpointLen = -1;
-
-        pucMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT, &uxMqttEndpointLen );
-
-        if ((uxMqttEndpointLen>0) && (uxMqttEndpointLen < 0xffffffff))
+        if( xIsIoTConnectBroker == pdTRUE )
         {
-          /* If we are connecting to AWS */
-          if (strstr(pucMqttEndpoint, "amazonaws") != NULL)
-          {
-            pxCtx->xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
-            pxCtx->xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
-          }
+            const char * pcUserName = pcIoTConnectMqttUserName();
+
+            pxCtx->xConnectInfo.pUserName = pcUserName;
+            pxCtx->xConnectInfo.userNameLength = ( uint16_t ) ( pcUserName != NULL ? strlen( pcUserName ) : 0U );
         }
         else
-#endif
         {
-          pxCtx->xConnectInfo.pUserName = NULL;
-          pxCtx->xConnectInfo.userNameLength = 0U;
-        }
+#if !defined(ST67W6X_NCP)
+            char * pucMqttEndpoint = NULL;
+            size_t uxMqttEndpointLen = -1;
+
+            pucMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT, &uxMqttEndpointLen );
+
+            if( ( uxMqttEndpointLen > 0U ) && ( uxMqttEndpointLen < 0xffffffffU ) )
+            {
+                /* If we are connecting to AWS */
+                if( strstr( pucMqttEndpoint, "amazonaws" ) != NULL )
+                {
+                    pxCtx->xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
+                    pxCtx->xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
+                }
+                else
+                {
+                    pxCtx->xConnectInfo.pUserName = NULL;
+                    pxCtx->xConnectInfo.userNameLength = 0U;
+                }
+            }
+            else
+#endif
+            {
+                pxCtx->xConnectInfo.pUserName = NULL;
+                pxCtx->xConnectInfo.userNameLength = 0U;
+            }
 
 #if !defined(ST67W6X_NCP)
-        if(pucMqttEndpoint != NULL)
-        {
-           vPortFree(pucMqttEndpoint);
-        }
+            if( pucMqttEndpoint != NULL )
+            {
+                vPortFree( pucMqttEndpoint );
+            }
 #endif
+        }
         pxCtx->xConnectInfo.pPassword = NULL;
         pxCtx->xConnectInfo.passwordLength = 0U;
 
-        pxCtx->xConnectInfo.pClientIdentifier = KVStore_getStringHeap( CS_CORE_THING_NAME, &uxTempSize );
+        if( xIsIoTConnectBroker == pdTRUE )
+        {
+            const char * pcClientId = pcIoTConnectMqttClientId();
+
+            if( pcClientId != NULL )
+            {
+                uxTempSize = strlen( pcClientId );
+                pxCtx->xConnectInfo.pClientIdentifier = pvPortMalloc( uxTempSize + 1U );
+            }
+            else
+            {
+                pxCtx->xConnectInfo.pClientIdentifier = NULL;
+                uxTempSize = 0U;
+            }
+
+            if( pxCtx->xConnectInfo.pClientIdentifier != NULL )
+            {
+                ( void ) strcpy( ( char * ) pxCtx->xConnectInfo.pClientIdentifier, pcClientId );
+            }
+        }
+        else
+        {
+            pxCtx->xConnectInfo.pClientIdentifier = KVStore_getStringHeap( CS_CORE_THING_NAME, &uxTempSize );
+        }
 
         if( ( pxCtx->xConnectInfo.pClientIdentifier != NULL ) &&
-            ( uxTempSize > 0 ) &&
+            ( uxTempSize > 0U ) &&
             ( uxTempSize <= UINT16_MAX ) )
         {
             pxCtx->xConnectInfo.clientIdentifierLength = ( uint16_t ) uxTempSize;
@@ -948,8 +988,26 @@ static MQTTStatus_t prvConfigureAgentTaskCtx( MQTTAgentTaskCtx_t * pxCtx,
 
     if( xStatus == MQTTSuccess )
     {
-        pxCtx->pcMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT,
-                                                       &( pxCtx->uxMqttEndpointLen ) );
+        if( xIsIoTConnectBroker == pdTRUE )
+        {
+            const char * pcEndpoint = pcIoTConnectMqttEndpoint();
+
+            if( pcEndpoint != NULL )
+            {
+                pxCtx->uxMqttEndpointLen = strlen( pcEndpoint );
+                pxCtx->pcMqttEndpoint = pvPortMalloc( pxCtx->uxMqttEndpointLen + 1U );
+
+                if( pxCtx->pcMqttEndpoint != NULL )
+                {
+                    ( void ) strcpy( pxCtx->pcMqttEndpoint, pcEndpoint );
+                }
+            }
+        }
+        else
+        {
+            pxCtx->pcMqttEndpoint = KVStore_getStringHeap( CS_CORE_MQTT_ENDPOINT,
+                                                           &( pxCtx->uxMqttEndpointLen ) );
+        }
 
         if( ( pxCtx->uxMqttEndpointLen == 0 ) ||
             ( pxCtx->pcMqttEndpoint == NULL ) )
@@ -961,7 +1019,15 @@ static MQTTStatus_t prvConfigureAgentTaskCtx( MQTTAgentTaskCtx_t * pxCtx,
 
     if( xStatus == MQTTSuccess )
     {
-        pxCtx->ulMqttPort = KVStore_getUInt32( CS_CORE_MQTT_PORT, &( xSuccess ) );
+        if( xIsIoTConnectBroker == pdTRUE )
+        {
+            pxCtx->ulMqttPort = usIoTConnectMqttPort();
+            xSuccess = pdTRUE;
+        }
+        else
+        {
+            pxCtx->ulMqttPort = KVStore_getUInt32( CS_CORE_MQTT_PORT, &( xSuccess ) );
+        }
 
         if( ( pxCtx->ulMqttPort == 0 ) ||
             ( xSuccess == pdFALSE ) )
@@ -996,6 +1062,7 @@ MQTTAgentHandle_t xGetMqttAgentHandle( void )
 void vMQTTAgentTask( void * pvParameters )
 {
     MQTTStatus_t xMQTTStatus = MQTTSuccess;
+    BaseType_t xIsIoTConnectBroker = xAppIsIoTConnectBroker();
 #if !defined(ST67W6X_NCP)
     TlsTransportStatus_t xTlsStatus = TLS_TRANSPORT_CONNECT_FAILURE;
 #else
@@ -1006,8 +1073,7 @@ void vMQTTAgentTask( void * pvParameters )
     size_t uxThingNameLen = 0;
 
     MQTTPublishInfo_t * pWillInfo = NULL;
-    char *pcWillTopicBuf;
-    pcWillTopicBuf = pvPortMalloc(64);
+    char * pcWillTopicBuf = NULL;
 
     BaseType_t xExitFlag = pdFALSE;
 
@@ -1038,6 +1104,12 @@ void vMQTTAgentTask( void * pvParameters )
     }
 
     pxRootCaChain[0]   = xPkiObjectFromLabel( TLS_ROOT_CA_CERT_LABEL ) ;
+
+    if( xIsIoTConnectBroker == pdFALSE )
+    {
+        pcWillTopicBuf = pvPortMalloc( 64U );
+        configASSERT( pcWillTopicBuf != NULL );
+    }
 
     ( void ) pvParameters;
 
@@ -1249,31 +1321,44 @@ void vMQTTAgentTask( void * pvParameters )
 
             ( void ) MQTTAgent_CancelAll( &( pxCtx->xAgentContext ) );
 
-            pThingName = KVStore_getStringHeap(CS_CORE_THING_NAME, &uxThingNameLen);
-            configASSERT(pThingName != NULL);
+            pWillInfo = NULL;
 
-            /* Allocate and initialize LWT structure */
-            static MQTTPublishInfo_t xWillInfo;
+            if( xIsIoTConnectBroker == pdFALSE )
+            {
+                static MQTTPublishInfo_t xWillInfo;
+                const char * pWillPayload = "offline";
+                int topicLen = 0;
 
-            int topicLen = snprintf(pcWillTopicBuf, 64, "%s/status/availability", pThingName);
-            const char *pWillPayload  = "offline";// Create static payload
-            xWillInfo.retain          = true;
-            xWillInfo.qos             = MQTTQoS0;
-            xWillInfo.dup             = false;
-            xWillInfo.pTopicName      = pcWillTopicBuf;
-            xWillInfo.topicNameLength = (uint16_t) topicLen;
-            xWillInfo.pPayload        = pWillPayload;
-            xWillInfo.payloadLength   = strlen(pWillPayload);
+                pThingName = KVStore_getStringHeap( CS_CORE_THING_NAME, &uxThingNameLen );
+                configASSERT( pThingName != NULL );
+                configASSERT( pcWillTopicBuf != NULL );
 
-            /* Assign pointer */
-            pWillInfo = &xWillInfo;
+                topicLen = snprintf( pcWillTopicBuf,
+                                     64,
+                                     "%s/status/availability",
+                                     pThingName );
+                xWillInfo.retain = true;
+                xWillInfo.qos = MQTTQoS0;
+                xWillInfo.dup = false;
+                xWillInfo.pTopicName = pcWillTopicBuf;
+                xWillInfo.topicNameLength = ( uint16_t ) topicLen;
+                xWillInfo.pPayload = pWillPayload;
+                xWillInfo.payloadLength = strlen( pWillPayload );
+                pWillInfo = &xWillInfo;
+            }
 
-            /* MQTT_Connect with populated pWillInfo */
-            xMQTTStatus = MQTT_Connect(&(pxCtx->xAgentContext.mqttContext),
-                                       &(pxCtx->xConnectInfo),
-                                       pWillInfo,
-                                       CONNACK_RECV_TIMEOUT_MS,
-                                       &xSessionPresent);
+            xMQTTStatus = MQTT_Connect( &( pxCtx->xAgentContext.mqttContext ),
+                                        &( pxCtx->xConnectInfo ),
+                                        pWillInfo,
+                                        CONNACK_RECV_TIMEOUT_MS,
+                                        &xSessionPresent );
+
+            if( pThingName != NULL )
+            {
+                vPortFree( pThingName );
+                pThingName = NULL;
+                uxThingNameLen = 0U;
+            }
 
             configASSERT_CONTINUE( MUTEX_IS_OWNED( pxCtx->xSubMgrCtx.xMutex ) );
 
@@ -1400,6 +1485,18 @@ void vMQTTAgentTask( void * pvParameters )
     {
         prvFreeAgentTaskCtx( pxCtx );
         pxCtx = NULL;
+    }
+
+    if( pThingName != NULL )
+    {
+        vPortFree( pThingName );
+        pThingName = NULL;
+    }
+
+    if( pcWillTopicBuf != NULL )
+    {
+        vPortFree( pcWillTopicBuf );
+        pcWillTopicBuf = NULL;
     }
 
     if( pxNetworkContext != NULL )
