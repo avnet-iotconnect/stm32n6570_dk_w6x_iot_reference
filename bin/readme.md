@@ -87,16 +87,17 @@ flowchart TD
 
     F -->|iotconnect| I[Run provision_iotconnect.ps1]
     I --> I1[Detect COM + open serial]
-    I1 --> I2[Read or update thing_name + generate tls_key_priv + tls_key_pub + tls_cert]
+    I1 --> I2[Read or update Wi-Fi config + thing_name + generate tls_key_priv + tls_key_pub + tls_cert]
     I2 --> I3[Show cert + UI instructions for device creation]
     I3 --> I4[Paste downloaded device JSON]
     I4 --> I5[Parse device JSON + import built-in root_ca_cert + iotconnect_dra_ca]
-    I5 --> I6[Set broker_type + backend + CPID + ENV + app mode + use thing_name as IOTCONNECT DUID + clear IOTCONNECT cache + commit + reset]
+    I5 --> I6[Set broker_type + backend + CPID + ENV + app mode + use thing_name as IOTCONNECT DUID]
+    I6 --> I7[clear IOTCONNECT cache + commit + reset]
 
 
     G7 --> Z[Done]
     H7 --> Z
-    I6 --> Z
+    I7 --> Z
 ```
 
 Notes:
