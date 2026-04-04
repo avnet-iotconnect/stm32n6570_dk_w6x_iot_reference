@@ -126,6 +126,7 @@ flowchart TD
 | AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
 | Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |
 | /IOTCONNECT UI onboarding quickstart | [docs/iotconnect_ui_onboard_quickstart.md](docs/iotconnect_ui_onboard_quickstart.md) |
+| IOTCONNECT change summary | [docs/iotconnect_changes_from_original.md](docs/iotconnect_changes_from_original.md) |
 | Repository structure | [docs/repo_structure.md](docs/repo_structure.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
 

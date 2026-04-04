@@ -12,6 +12,7 @@ This document maps the repository layout and the role of each major module.
   - [provision_aws_single_cli.md](../provision_aws_single_cli.md)
   - [provision_aws_single_script.md](../provision_aws_single_script.md)
   - [provision_mosquitto.md](../provision_mosquitto.md)
+  - [provision_iotconnect.md](../provision_iotconnect.md)
 
 ## `Appli/Common` Overview
 
