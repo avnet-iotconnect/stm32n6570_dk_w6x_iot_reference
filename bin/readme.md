@@ -187,8 +187,9 @@ After provisioning, use these feature guides:
 Use the main project documentation:
 
 - [Main README](../readme.md)
+- [AWS single-device provisioning guide](../provision_aws_single_cli.md)
+- [AWS single-device provisioning guide (script method)](../provision_aws_single_script.md)
 - [Mosquitto provisioning guide](../provision_mosquitto.md)
-- [AWS single-device provisioning guide](../provision_aws_single_script.md)
 - [/IOTCONNECT provisioning guide](../provision_iotconnect.md)
 - [/IOTCONNECT UI onboarding quickstart](../docs/iotconnect_ui_onboard_quickstart.md)
 

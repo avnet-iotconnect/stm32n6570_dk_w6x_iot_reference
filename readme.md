@@ -14,6 +14,8 @@ This repository provides a complete MQTT-over-TLS reference for the [STM32N6570-
 It is built for a repeatable bring-up workflow: flash, provision, validate, and then move to source-level build/debug in STM32CubeIDE.
 Validated broker flows in this repository are AWS IoT Core, Mosquitto, and /IOTCONNECT.
 
+---
+
 ## ⚡ Hardware Crypto Acceleration
 
 This firmware leverages the STM32N6570's advanced cryptographic hardware accelerators to enhance security performance:
@@ -33,6 +35,8 @@ These accelerators are **enabled by default** in MbedTLS via hardware abstractio
 
 Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/ReadMe.md) and [Appli/Core/Inc/mbedtls_config_hw.h](Appli/Core/Inc/mbedtls_config_hw.h).
 
+---
+
 ## What This Project Covers
 
 - Hardware:
@@ -47,9 +51,11 @@ Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/R
   - LED control over MQTT
   - Button event reporting over MQTT
 - Provisioning targets:
-  - AWS IoT Core (with auto-provisioning)
+  - AWS IoT Core
   - Mosquitto
   - /IOTCONNECT (AWS or Azure backend using an on-device generated certificate)
+
+---
 
 ## Required Software
 
@@ -66,6 +72,8 @@ If you use AWS IoT Core:
 - [AWS account](https://aws.amazon.com/)
 - [AWS CLI installation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [`aws configure` quickstart](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+
+---
 
 ## Quick Start
 
@@ -84,6 +92,8 @@ If you use AWS IoT Core:
 
 For full scripted flashing/provisioning details, see [`bin/readme.md`](bin/readme.md).
 
+---
+
 ## Build Configurations
 
 The `Appli` project in STM32CubeIDE comes with two build configurations, allowing you to choose between hardware-accelerated and software-only cryptography:
@@ -100,6 +110,8 @@ The `Appli` project in STM32CubeIDE comes with two build configurations, allowin
 
 Both configurations use identical MQTT/FreeRTOS/LwIP stacks and are binary-compatible for provisioning workflows—only the crypto backend differs.
 
+---
+
 ## Runtime Architecture
 
 ```mermaid
@@ -112,23 +124,30 @@ flowchart TD
     E --> G[vButtonTask]
 ```
 
+---
+
 ## Documentation Guide
 
 | Topic | File |
 |---|---|
 | Architecture and middleware | [docs/architecture.md](docs/architecture.md) |
 | Software components | [docs/software_components.md](docs/software_components.md) |
+| Securing the application | [docs/securing_the_application.md](docs/securing_the_application.md) |
+| Flash and RAM memory layout | [docs/memory_layout.md](docs/memory_layout.md) |
 | Hardware crypto accelerators | [Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md](Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md) |
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
 | Scripted flash/provision flow | [bin/readme.md](bin/readme.md) |
 | MQTT topic/data model | [docs/mqtt_data_model.md](docs/mqtt_data_model.md) |
 | /IOTCONNECT provisioning | [provision_iotconnect.md](provision_iotconnect.md) |
-| AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
-| Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |
+| AWS provisioning | [provision_aws_single_cli.md](provision_aws_single_cli.md) |
+| AWS provisioning (script method) | [provision_aws_single_script.md](provision_aws_single_script.md) |
+| Mosquitto provisioning | [provision_mosquitto.md](provision_mosquitto.md) |
 | /IOTCONNECT UI onboarding quickstart | [docs/iotconnect_ui_onboard_quickstart.md](docs/iotconnect_ui_onboard_quickstart.md) |
 | IOTCONNECT change summary | [docs/iotconnect_changes_from_original.md](docs/iotconnect_changes_from_original.md) |
 | Repository structure | [docs/repo_structure.md](docs/repo_structure.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
+
+---
 
 ## Module Guides
 
@@ -137,6 +156,10 @@ flowchart TD
 - CLI: [Appli/Common/cli/ReadMe.md](Appli/Common/cli/ReadMe.md)
 - Crypto: [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/ReadMe.md)
 - KVStore: [Appli/Common/kvstore/ReadMe.md](Appli/Common/kvstore/ReadMe.md)
+- corePKCS11: [https://github.com/FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11)
+- LittleFS: [https://github.com/littlefs-project/littlefs](https://github.com/littlefs-project/littlefs)
+
+---
 
 ## Build and Flash Paths
 
@@ -145,6 +168,8 @@ flowchart TD
   - `Appli`
 - Build and debug/flash details:
   - [docs/debug.md](docs/debug.md)
+
+---
 
 ## Git Submodules Used
 

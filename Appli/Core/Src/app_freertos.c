@@ -37,9 +37,7 @@
 #include "semphr.h"
 
 #include <string.h>
-#if 1//defined(LFS_CONFIG)
 
-#endif
 #include "kvstore.h"
 #include "sys_evt.h"
 
@@ -78,7 +76,7 @@ EventGroupHandle_t xSystemEvents = NULL;
 /* USER CODE BEGIN FunctionPrototypes */
 void vInitTask(void *pvArgs);
 
-#if 1//defined(LFS_CONFIG)
+#if defined(LFS_CONFIG)
 #include "lfs.h"
 #include "lfs_port.h"
 
@@ -90,7 +88,7 @@ lfs_t* pxGetDefaultFsCtx(void);
 
 extern void vLEDTask                     ( void * pvParameters );
 extern void vButtonTask                  ( void * pvParameters );
-
+extern void vSubscribePublishTestTask    ( void * pvParameters );
 /* USER CODE END FunctionPrototypes */
 
 /* USER CODE BEGIN 5 */
@@ -319,6 +317,10 @@ void StartDefaultTask(void *argument)
       xTaskCreate(vButtonTask, "ButtonTask", TASK_STACK_SIZE_BUTTON, NULL, TASK_PRIO_BUTTON, NULL);
 #endif
   }
+#endif
+
+#if DEMO_PUB_SUB
+  xTaskCreate(vSubscribePublishTestTask, "PubSub", TASK_STACK_SIZE_PUBLISH, NULL, TASK_PRIO_PUBLISH, NULL);
 #endif
 
   /* Infinite loop */

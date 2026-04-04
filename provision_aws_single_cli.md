@@ -4,18 +4,7 @@ This guide explains how to provision a **single STM32N6570-DK device** on **AWS 
 
 See AWS background: [Single Thing Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/single-thing-provisioning.html).
 
-## Supported Build Configurations
-
-| Build Config | Provisioning Method |
-|---|---|
-| `ST67_T02` / `ST67_T02_Single` | Single Thing Provisioning |
-
-## 1. Hardware Setup
-
-- Connect the Wi-Fi module to the `Arduino` connector.
-- Connect ST-Link USB to your PC for power, flashing, and debugging.
-
-## 2. Connect a Serial Terminal
+## 1. Connect a Serial Terminal
 
 Open a serial terminal (Tera Term, PuTTY, or [web serial terminal](https://googlechromelabs.github.io/serial-terminal/)) with:
 
@@ -26,7 +15,7 @@ Open a serial terminal (Tera Term, PuTTY, or [web serial terminal](https://googl
 
 ![Terminal Configuration](assets/TeraTerm_Config.png)
 
-## 3. Get the Device Thing Name
+## 2. Get the Device Thing Name
 
 Retrieve the generated Thing/device identifier from the board CLI:
 
@@ -38,7 +27,7 @@ Save this value for AWS registration and MQTT topic filtering.
 
 ![CLI conf get](assets/conf_get.png)
 
-## 4. Generate Device Key Pair
+## 3. Generate Device Key Pair
 
 Run:
 
@@ -50,7 +39,7 @@ This generates an ECC key pair via MbedTLS and PKCS#11 and stores it in internal
 
 ![Generate Key](assets/pki_generate_key.png)
 
-## 5. Generate Device Certificate
+## 4. Generate Device Certificate
 
 Run:
 
@@ -64,7 +53,7 @@ This creates a self-signed certificate from the device key pair and prints it in
 
 ![Generate Certificate](assets/pki_generate_cert.png)
 
-## 6. Register Device in AWS IoT Core
+## 5. Register Device in AWS IoT Core
 
 ### a) Open AWS IoT Console
 
@@ -109,7 +98,7 @@ This creates a self-signed certificate from the device key pair and prints it in
 
 Create the Thing. The device is now registered for AWS IoT Core TLS authentication.
 
-## 7. Download AWS Root CA
+## 6. Download AWS Root CA
 
 ```bash
 wget https://www.amazontrust.com/repository/SFSRootCAG2.pem
@@ -117,7 +106,7 @@ wget https://www.amazontrust.com/repository/SFSRootCAG2.pem
 
 Or download manually: [SFSRootCAG2.pem](https://www.amazontrust.com/repository/SFSRootCAG2.pem)
 
-## 8. Import AWS Root CA to STM32
+## 7. Import AWS Root CA to STM32
 
 On the board CLI:
 
@@ -129,7 +118,7 @@ Paste the full `SFSRootCAG2.pem` contents (including `BEGIN CERTIFICATE` and `EN
 
 ![Import Root CA](assets/pki_import_root_ca.png)
 
-## 9. Set Runtime MQTT and Network Configuration
+## 8. Set Runtime MQTT and Network Configuration
 
 Set AWS endpoint:
 
@@ -160,7 +149,7 @@ conf get
 ![AWS conf commit](assets/aws_conf_commit.png)
 ![AWS conf get](assets/aws_conf_get.png)
 
-## 10. Reset and Connect
+## 9. Reset and Connect
 
 ```bash
 reset
@@ -170,7 +159,7 @@ After reboot, the device connects using the new TLS assets and MQTT settings.
 
 ![MQTT Connection](assets/mqtt_connection.png)
 
-## 11. Monitor MQTT Messages in AWS
+## 10. Monitor MQTT Messages in AWS
 
 1. Open [AWS IoT Core Console](https://console.aws.amazon.com/iot).
 2. Select `MQTT test client`.
@@ -178,13 +167,3 @@ After reboot, the device connects using the new TLS assets and MQTT settings.
 4. Verify telemetry in real time.
 
 ![AWS MQTT Test Client](assets/aws_mqtt_test_client.png)
-
-## 13. Run the Examples
-
-After provisioning, continue with:
-
-- [Run the Examples](readme.md#run-the-examples)
-
----
-
-[Back to Main README](readme.md)

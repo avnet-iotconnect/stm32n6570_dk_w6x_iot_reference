@@ -447,16 +447,16 @@ void mbedtls_platform_free( void * ptr );
  * function.
  */
 /* Required for all the functions in this section */
-/*#define MBEDTLS_ECP_INTERNAL_ALT*/
+#define MBEDTLS_ECP_INTERNAL_ALT
 
 /* Turn off software fallback for curves not supported in hardware */
 /*#define MBEDTLS_ECP_NO_FALLBACK */
 /* Support for Weierstrass curves with Jacobi representation */
 /*#define MBEDTLS_ECP_RANDOMIZE_JAC_ALT */
-/*#define MBEDTLS_ECP_ADD_MIXED_ALT */
-/*#define MBEDTLS_ECP_DOUBLE_JAC_ALT */
+#define MBEDTLS_ECP_ADD_MIXED_ALT
+#define MBEDTLS_ECP_DOUBLE_JAC_ALT
 /*#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT */
-/*#define MBEDTLS_ECP_NORMALIZE_JAC_ALT */
+/*#define MBEDTLS_ECP_NORMALIZE_JAC_ALT*/
 /* Support for curves with Montgomery arithmetic */
 /*#define MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT */
 /*#define MBEDTLS_ECP_RANDOMIZE_MXZ_ALT */
@@ -639,7 +639,7 @@ void mbedtls_platform_free( void * ptr );
 /*#define MBEDTLS_ECP_DP_BP512R1_ENABLED   */
 /* Montgomery curves (supporting ECP)      */
 /*#define MBEDTLS_ECP_DP_CURVE25519_ENABLED*/
-/*9#define MBEDTLS_ECP_DP_CURVE448_ENABLED */
+/*#define MBEDTLS_ECP_DP_CURVE448_ENABLED  */
 
 /**
  * \def MBEDTLS_ECP_NIST_OPTIM
