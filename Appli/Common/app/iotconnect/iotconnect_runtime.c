@@ -1060,6 +1060,11 @@ static void prvIoTConnectMqttSendCallback( const char * pcTopic,
                  pcTopic,
                  MQTT_Status_strerror( xStatus ) );
     }
+    else if( ( pcTopic != NULL ) &&
+             ( strstr( pcTopic, "mt=6" ) != NULL ) )
+    {
+        LogInfo( "IOTCONNECT C2D ACK published to %s.", pcTopic );
+    }
 }
 
 static BaseType_t prvSubscribeToC2DTopic( MQTTAgentHandle_t xMqttHandle )
@@ -1103,6 +1108,7 @@ static void prvC2DIncomingPublishCallback( void * pvIncomingPublishCallbackConte
                                            MQTTPublishInfo_t * pxPublishInfo )
 {
     char pcTopic[ IOTCONNECT_TOPIC_BUFFER_LEN ];
+    int lStatus = IOTCL_SUCCESS;
 
     ( void ) pvIncomingPublishCallbackContext;
 
@@ -1119,9 +1125,16 @@ static void prvC2DIncomingPublishCallback( void * pvIncomingPublishCallbackConte
             pxPublishInfo->topicNameLength );
     pcTopic[ pxPublishInfo->topicNameLength ] = '\0';
 
-    ( void ) iotcl_mqtt_receive_with_length( pcTopic,
-                                             ( const uint8_t * ) pxPublishInfo->pPayload,
-                                             pxPublishInfo->payloadLength );
+    lStatus = iotcl_mqtt_receive_with_length( pcTopic,
+                                              ( const uint8_t * ) pxPublishInfo->pPayload,
+                                              pxPublishInfo->payloadLength );
+
+    if( lStatus != IOTCL_SUCCESS )
+    {
+        LogWarn( "IOTCONNECT C2D processing returned %d for topic %s.",
+                 lStatus,
+                 pcTopic );
+    }
 }
 
 static void prvDemoButtonEdgeCallback( void * pvContext )
@@ -1344,6 +1357,10 @@ static void prvDemoCommandCallback( IotclC2dEventData xEventData )
                              "Unknown command" );
         return;
     }
+
+    LogInfo( "IOTCONNECT C2D command received: %s (ack=%s).",
+             pcCommand,
+             ( pcAckId != NULL ) ? pcAckId : "<none>" );
 
     prvQueueEvent( &xEvent );
 }

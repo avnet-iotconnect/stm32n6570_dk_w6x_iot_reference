@@ -61,7 +61,7 @@ Added or updated:
 - [docs/provisioning_iotconnect.md](provisioning_iotconnect.md)
 - [docs/iotconnect_ui_onboard_quickstart.md](iotconnect_ui_onboard_quickstart.md)
 - [IOTCONNECT_Templates/README.md](../IOTCONNECT_Templates/README.md)
-- [IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+- [IOTCONNECT_Templates/stm32n6_w6x_device_template.json](../IOTCONNECT_Templates/stm32n6_w6x_device_template.json)
 - [readme.md](../readme.md)
 - [bin/readme.md](../bin/readme.md)
 - [docs/troubleshooting.md](troubleshooting.md)
@@ -280,6 +280,16 @@ Observed symptom chain:
 - then the merged branch either failed in the transport path or let the PubSub demo interfere with the IOTCONNECT session
 
 These post-sync runtime regressions were reproduced on hardware and corrected locally before this document was updated.
+
+Additional hardware validation was completed after the initial AWS-backed IOTCONNECT verification:
+
+- AWS-backed IOTCONNECT was validated for bootstrap, MQTT connect, telemetry publish, command handling, and ACK publish
+- Azure-backed IOTCONNECT was validated for bootstrap, MQTT connect, telemetry publish, command handling, and ACK publish
+
+The Azure validation also required one Azure-specific fix in the bundled IOTCONNECT client:
+
+- [Appli/Common/app/iotconnect/vendor/iotcl.c](../Appli/Common/app/iotconnect/vendor/iotcl.c) now honors MQTT wildcards in the configured subscribe filter so Azure `devices/.../messages/devicebound/#` topics are not silently ignored
+- [Appli/Common/app/iotconnect/iotconnect_runtime.c](../Appli/Common/app/iotconnect/iotconnect_runtime.c) now logs successful C2D command receipt and ACK publication so hardware validation is explicit in UART captures
 
 ## Files Changed Against `origin/main`
 

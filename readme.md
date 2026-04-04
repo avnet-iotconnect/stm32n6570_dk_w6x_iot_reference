@@ -12,7 +12,7 @@
 This repository provides a complete MQTT-over-TLS reference for the [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html) paired with the [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html).
 
 It is built for a repeatable bring-up workflow: flash, provision, validate, and then move to source-level build/debug in STM32CubeIDE.
-Validated broker flows in this repository are AWS IoT Core, Mosquitto, and /IOTCONNECT.
+Validated broker flows in this repository are AWS IoT Core, Mosquitto, and /IOTCONNECT on both AWS and Azure backends.
 
 ---
 
@@ -53,7 +53,7 @@ Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/R
 - Provisioning targets:
   - AWS IoT Core
   - Mosquitto
-  - /IOTCONNECT (AWS or Azure backend using an on-device generated certificate)
+  - /IOTCONNECT (hardware-validated on AWS and Azure backends using an on-device generated certificate)
 
 ---
 

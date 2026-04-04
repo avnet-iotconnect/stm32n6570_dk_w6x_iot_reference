@@ -18,7 +18,7 @@ This version replaces the Avnet host quickstart with:
   - Windows PowerShell
   - ST-LINK VCP connected to the board CLI
 - Repo assets:
-  - [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+  - [stm32n6_w6x_device_template.json](../IOTCONNECT_Templates/stm32n6_w6x_device_template.json)
   - [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
 
 ## Before You Start
@@ -51,7 +51,7 @@ Recommended config in [config.json](../bin/config.json):
 3. Click `Create Template`.
 4. Click `Import`.
 5. Select:
-   - [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+   - [stm32n6_w6x_device_template.json](../IOTCONNECT_Templates/stm32n6_w6x_device_template.json)
 6. Save the template.
 
 ## Step 3. Start Enrollment On The Board
@@ -149,4 +149,4 @@ Current firmware support for this flow:
 
 - [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
 - [provision_iotconnect.md](../provision_iotconnect.md)
-- [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)
+- [stm32n6_w6x_device_template.json](../IOTCONNECT_Templates/stm32n6_w6x_device_template.json)
