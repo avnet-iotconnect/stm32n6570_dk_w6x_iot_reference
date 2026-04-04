@@ -148,5 +148,5 @@ Current firmware support for this flow:
 ## Related Files
 
 - [provision_iotconnect.ps1](../bin/provision_iotconnect.ps1)
-- [provisioning_iotconnect.md](provisioning_iotconnect.md)
+- [provision_iotconnect.md](../provision_iotconnect.md)
 - [stm32n6_w6x_iot_template_completed.json](../IOTCONNECT_Templates/stm32n6_w6x_iot_template_completed.json)

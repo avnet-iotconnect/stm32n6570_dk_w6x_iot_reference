@@ -171,7 +171,7 @@ Notes:
 - The script generates the device certificate on-board and prints it for UI copy/paste.
 - MQTT and DRA Root CAs are built into the provisioning script.
 - The script refreshes internal `/IOTCONNECT` cached identity state before reboot so the next boot fetches current backend identity as needed.
-- See [/IOTCONNECT provisioning guide](../docs/provisioning_iotconnect.md) for the full config schema and cache behavior.
+- See [/IOTCONNECT provisioning guide](../provision_iotconnect.md) for the full step-by-step workflow.
 - For the UI-driven version of that flow, see [/IOTCONNECT UI onboarding quickstart](../docs/iotconnect_ui_onboard_quickstart.md).
 
 ## Run the Examples
@@ -188,7 +188,7 @@ Use the main project documentation:
 - [Main README](../readme.md)
 - [Mosquitto provisioning guide](../provision_mosquitto.md)
 - [AWS single-device provisioning guide](../provision_aws_single_script.md)
-- [/IOTCONNECT provisioning guide](../docs/provisioning_iotconnect.md)
+- [/IOTCONNECT provisioning guide](../provision_iotconnect.md)
 - [/IOTCONNECT UI onboarding quickstart](../docs/iotconnect_ui_onboard_quickstart.md)
 
 ## Run and Test Examples After Provisioning

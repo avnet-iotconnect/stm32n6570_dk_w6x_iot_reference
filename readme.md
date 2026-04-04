@@ -122,10 +122,9 @@ flowchart TD
 | Build, debug, and flash | [docs/debug.md](docs/debug.md) |
 | Scripted flash/provision flow | [bin/readme.md](bin/readme.md) |
 | MQTT topic/data model | [docs/mqtt_data_model.md](docs/mqtt_data_model.md) |
-| /IOTCONNECT getting started | [IOTCONNECT_GETTING_STARTED.md](IOTCONNECT_GETTING_STARTED.md) |
+| /IOTCONNECT provisioning | [provision_iotconnect.md](provision_iotconnect.md) |
 | AWS provisioning | [docs/provisioning_aws.md](docs/provisioning_aws.md) |
 | Mosquitto provisioning | [docs/provisioning_mosquitto.md](docs/provisioning_mosquitto.md) |
-| /IOTCONNECT provisioning | [docs/provisioning_iotconnect.md](docs/provisioning_iotconnect.md) |
 | /IOTCONNECT UI onboarding quickstart | [docs/iotconnect_ui_onboard_quickstart.md](docs/iotconnect_ui_onboard_quickstart.md) |
 | Repository structure | [docs/repo_structure.md](docs/repo_structure.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
