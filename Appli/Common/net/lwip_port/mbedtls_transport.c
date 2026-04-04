@@ -65,7 +65,8 @@
 #endif
 
 #define MBEDTLS_TRANSPORT_HANDSHAKE_TIMEOUT_MS    ( 10000U )
-#define MBEDTLS_TRANSPORT_BROKER_TRACE_PORT       ( 8883U )
+/* Disabled by default: 8883 is the real broker port for MQTT/TLS. */
+#define MBEDTLS_TRANSPORT_BROKER_TRACE_PORT       ( 0U )
 #define MBEDTLS_TRANSPORT_TRACE_IO_LOG_LIMIT      ( 8U )
 
 typedef struct

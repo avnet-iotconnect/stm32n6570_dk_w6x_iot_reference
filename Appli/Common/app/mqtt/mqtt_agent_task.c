@@ -1276,7 +1276,8 @@ void vMQTTAgentTask( void * pvParameters )
             xTlsStatus = mbedtls_transport_connect( pxNetworkContext,
                                                     pxCtx->pcMqttEndpoint,
                                                     ( uint16_t ) pxCtx->ulMqttPort,
-                                                    0, 0 );
+                                                    CONNACK_RECV_TIMEOUT_MS,
+                                                    SEND_TIMEOUT_MS );
 #else
             xW6xStatus = w6x_transport_connect( pxNetworkContext,
                 pxCtx->pcMqttEndpoint,

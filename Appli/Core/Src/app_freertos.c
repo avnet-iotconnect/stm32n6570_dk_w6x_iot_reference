@@ -320,7 +320,15 @@ void StartDefaultTask(void *argument)
 #endif
 
 #if DEMO_PUB_SUB
-  xTaskCreate(vSubscribePublishTestTask, "PubSub", TASK_STACK_SIZE_PUBLISH, NULL, TASK_PRIO_PUBLISH, NULL);
+  if( xAppIsIoTConnectBroker() == pdFALSE )
+  {
+      xTaskCreate( vSubscribePublishTestTask,
+                   "PubSub",
+                   TASK_STACK_SIZE_PUBLISH,
+                   NULL,
+                   TASK_PRIO_PUBLISH,
+                   NULL );
+  }
 #endif
 
   /* Infinite loop */
