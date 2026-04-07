@@ -33,7 +33,7 @@ These accelerators are **enabled by default** in MbedTLS via hardware abstractio
 - ✅ **Lower power consumption** for IoT deployments
 - ✅ **Improved throughput** for secure MQTT communication
 
-Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/ReadMe.md) and [Appli/Core/Inc/mbedtls_config_hw.h](Appli/Core/Inc/mbedtls_config_hw.h).
+Configuration details: See [CRYPTO_ACCELERATORS.md](Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md) and [Appli/Core/Inc/mbedtls_config_hw.h](Appli/Core/Inc/mbedtls_config_hw.h).
 
 ---
 
