@@ -23,7 +23,7 @@ This firmware leverages the STM32N6570's advanced cryptographic hardware acceler
 | Accelerator | Feature | Use Case |
 |---|---|---|
 | **RNG** | Hardware Random Number Generator | Secure key generation, TLS nonce/IV generation |
-| **HASH** | SHA2 hardware hashing | Certificate validation, MQTT message integrity |
+| **HASH** | SHA256 hardware hashing | Certificate validation, MQTT message integrity |
 | **AES** | AES-128/256 encryption/decryption | TLS symmetric encryption, symmetric key operations |
 | **PKA** | Public Key Accelerator | TLS handshake (ECDSA), certificate-based authentication |
 
