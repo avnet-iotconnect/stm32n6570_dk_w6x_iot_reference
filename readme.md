@@ -6,7 +6,7 @@
 [![Network: LwIP](https://img.shields.io/badge/Network-LwIP-006064)](https://savannah.nongnu.org/projects/lwip/)
 [![TLS: MbedTLS 3.1.1](https://img.shields.io/badge/TLS-MbedTLS%203.1.1-283593)](https://www.keil.arm.com/packs/mbedtls-arm/versions/)
 [![Wi-Fi: ST67W611M1](https://img.shields.io/badge/Wi--Fi-ST67W611M1-0B8043)](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html)
-[![Hardware Crypto: RNG, SHA256, AES, PKA](https://img.shields.io/badge/HW%20Acceleration-RNG%20%7C%20SHA256%20%7C%20AES%20%7C%20PKA-FF6B6B)](./Appli/Common/crypto/ReadMe.md)
+[![Hardware Crypto: RNG, SHA256, AES, PKA](https://img.shields.io/badge/HW%20Acceleration-RNG%20%7C%20SHA256%20%7C%20AES%20%7C%20PKA-FF6B6B)](./Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE.md)
 
 This repository provides a complete MQTT-over-TLS reference for the [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html) paired with the [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html).

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The STM32N6570-DK implements hardware-accelerated cryptographic operations through mbedTLS alternate implementations (`*_alt.c`/`*_alt.h` files). These leverage the STM32N6570's dedicated crypto peripherals to offload CPU-intensive TLS handshakes and data encryption.
+The firmware implements hardware-accelerated cryptographic operations through mbedTLS alternate implementations (`*_alt.c`/`*_alt.h` files). These leverage the STM32N6570's dedicated crypto peripherals to offload CPU-intensive TLS handshakes and data encryption.
 
 **Location**: `Appli/Core/Src/crypto/`
 
