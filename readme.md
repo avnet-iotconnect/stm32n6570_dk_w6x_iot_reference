@@ -6,7 +6,7 @@
 [![Network: LwIP](https://img.shields.io/badge/Network-LwIP-006064)](https://savannah.nongnu.org/projects/lwip/)
 [![TLS: MbedTLS 3.1.1](https://img.shields.io/badge/TLS-MbedTLS%203.1.1-283593)](https://www.keil.arm.com/packs/mbedtls-arm/versions/)
 [![Wi-Fi: ST67W611M1](https://img.shields.io/badge/Wi--Fi-ST67W611M1-0B8043)](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html)
-[![Hardware Crypto: RNG, SHA256, AES, PKA](https://img.shields.io/badge/HW%20Acceleration-RNG%20%7C%20SHA256%20%7C%20AES%20%7C%20PKA-FF6B6B)](./Appli/Common/crypto/ReadMe.md)
+[![Hardware Crypto: RNG, SHA256, AES, PKA](https://img.shields.io/badge/HW%20Acceleration-RNG%20%7C%20SHA256%20%7C%20AES%20%7C%20PKA-FF6B6B)](./Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE.md)
 
 This repository provides a complete MQTT-over-TLS reference for the [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk.html) paired with the [ST67W611M1](https://www.st.com/content/st_com/en/campaigns/st67w-wifi6-bluetooth-thread-module-z13.html).
@@ -23,7 +23,7 @@ This firmware leverages the STM32N6570's advanced cryptographic hardware acceler
 | Accelerator | Feature | Use Case |
 |---|---|---|
 | **RNG** | Hardware Random Number Generator | Secure key generation, TLS nonce/IV generation |
-| **SHA256** | SHA2 hardware hashing | Certificate validation, MQTT message integrity |
+| **HASH** | SHA256 hardware hashing | Certificate validation, MQTT message integrity |
 | **AES** | AES-128/256 encryption/decryption | TLS symmetric encryption, symmetric key operations |
 | **PKA** | Public Key Accelerator | TLS handshake (ECDSA), certificate-based authentication |
 
@@ -33,7 +33,7 @@ These accelerators are **enabled by default** in MbedTLS via hardware abstractio
 - ✅ **Lower power consumption** for IoT deployments
 - ✅ **Improved throughput** for secure MQTT communication
 
-Configuration details: See [Appli/Common/crypto/ReadMe.md](Appli/Common/crypto/ReadMe.md) and [Appli/Core/Inc/mbedtls_config_hw.h](Appli/Core/Inc/mbedtls_config_hw.h).
+Configuration details: See [CRYPTO_ACCELERATORS.md](Appli/Core/Src/crypto/CRYPTO_ACCELERATORS.md) and [Appli/Core/Inc/mbedtls_config_hw.h](Appli/Core/Inc/mbedtls_config_hw.h).
 
 ---
 
